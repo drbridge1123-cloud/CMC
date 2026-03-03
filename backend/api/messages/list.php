@@ -6,7 +6,7 @@ $filter = $_GET['filter'] ?? 'all'; // all, unread, sent
 
 if ($filter === 'sent') {
     $rows = dbFetchAll(
-        "SELECT m.*, uf.full_name AS from_name, ut.full_name AS to_name, 'sent' AS direction
+        "SELECT m.*, COALESCE(uf.display_name, uf.full_name) AS from_name, COALESCE(ut.display_name, ut.full_name) AS to_name, 'sent' AS direction
          FROM messages m
          JOIN users uf ON uf.id = m.from_user_id
          JOIN users ut ON ut.id = m.to_user_id
@@ -16,7 +16,7 @@ if ($filter === 'sent') {
     );
 } elseif ($filter === 'unread') {
     $rows = dbFetchAll(
-        "SELECT m.*, uf.full_name AS from_name, ut.full_name AS to_name, 'received' AS direction
+        "SELECT m.*, COALESCE(uf.display_name, uf.full_name) AS from_name, COALESCE(ut.display_name, ut.full_name) AS to_name, 'received' AS direction
          FROM messages m
          JOIN users uf ON uf.id = m.from_user_id
          JOIN users ut ON ut.id = m.to_user_id
@@ -27,7 +27,7 @@ if ($filter === 'sent') {
 } else {
     // All: merge received + sent, avoid duplicates when from=to
     $received = dbFetchAll(
-        "SELECT m.*, uf.full_name AS from_name, ut.full_name AS to_name, 'received' AS direction
+        "SELECT m.*, COALESCE(uf.display_name, uf.full_name) AS from_name, COALESCE(ut.display_name, ut.full_name) AS to_name, 'received' AS direction
          FROM messages m
          JOIN users uf ON uf.id = m.from_user_id
          JOIN users ut ON ut.id = m.to_user_id
@@ -36,7 +36,7 @@ if ($filter === 'sent') {
         [$userId]
     );
     $sent = dbFetchAll(
-        "SELECT m.*, uf.full_name AS from_name, ut.full_name AS to_name, 'sent' AS direction
+        "SELECT m.*, COALESCE(uf.display_name, uf.full_name) AS from_name, COALESCE(ut.display_name, ut.full_name) AS to_name, 'sent' AS direction
          FROM messages m
          JOIN users uf ON uf.id = m.from_user_id
          JOIN users ut ON ut.id = m.to_user_id

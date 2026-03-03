@@ -27,7 +27,7 @@ if (!empty($_GET['payment_type'])) {
 }
 
 $rows = dbFetchAll("
-    SELECT mfp.*, u.full_name AS paid_by_name
+    SELECT mfp.*, COALESCE(u.display_name, u.full_name) AS paid_by_name
     FROM mr_fee_payments mfp
     LEFT JOIN users u ON u.id = mfp.paid_by
     WHERE {$where}

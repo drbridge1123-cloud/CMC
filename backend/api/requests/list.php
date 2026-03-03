@@ -13,7 +13,7 @@ if (!$cp) errorResponse('Case-provider not found', 404);
 
 $rows = dbFetchAll("
     SELECT rr.*,
-           u.full_name AS requested_by_name
+           COALESCE(u.display_name, u.full_name) AS requested_by_name
     FROM record_requests rr
     LEFT JOIN users u ON u.id = rr.requested_by
     WHERE rr.case_provider_id = ?

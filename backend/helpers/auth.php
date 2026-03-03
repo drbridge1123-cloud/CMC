@@ -65,7 +65,7 @@ function getAllPermissions() {
         'dashboard', 'cases', 'providers', 'mr_tracker',
         'prelitigation_tracker', 'accounting_tracker',
         'attorney_cases', 'traffic', 'commissions', 'commission_admin',
-        'referrals', 'mbds', 'health_tracker', 'expense_report',
+        'referrals', 'mbr', 'health_tracker', 'expense_report',
         'bank_reconciliation', 'reports', 'goals',
         'users', 'templates', 'activity_log', 'data_management', 'messages'
     ];
@@ -83,23 +83,27 @@ function getDefaultPermissions($role) {
             'attorney_cases', 'commissions', 'referrals',
             'reports', 'goals', 'messages', 'templates'
         ],
-        'accounting' => [
-            'dashboard', 'cases', 'providers', 'mr_tracker',
-            'accounting_tracker',
-            'mbds', 'health_tracker', 'expense_report',
-            'bank_reconciliation', 'messages'
-        ],
-        'staff' => [
-            'dashboard', 'cases', 'providers', 'mr_tracker',
-            'prelitigation_tracker',
-            'commissions', 'referrals', 'goals', 'messages'
-        ],
         'attorney' => [
             'dashboard', 'attorney_cases', 'traffic',
             'commissions', 'messages'
         ],
+        'paralegal' => [
+            'dashboard', 'cases', 'providers', 'mr_tracker',
+            'prelitigation_tracker',
+            'commissions', 'referrals', 'goals', 'messages'
+        ],
+        'billing' => [
+            'dashboard', 'cases', 'providers', 'mr_tracker',
+            'commissions', 'messages'
+        ],
+        'accounting' => [
+            'dashboard', 'cases', 'providers', 'mr_tracker',
+            'accounting_tracker',
+            'mbr', 'health_tracker', 'expense_report',
+            'bank_reconciliation', 'messages'
+        ],
     ];
-    return $defaults[$role] ?? $defaults['staff'];
+    return $defaults[$role] ?? $defaults['paralegal'];
 }
 
 /**
@@ -116,7 +120,7 @@ function getPermissionLabels() {
         'commissions' => 'Commissions',
         'commission_admin' => 'Commission Admin',
         'referrals' => 'Referrals',
-        'mbds' => 'MBDS',
+        'mbr' => 'MBR',
         'health_tracker' => 'Health Tracker',
         'expense_report' => 'Expense Report',
         'bank_reconciliation' => 'Bank Reconciliation',

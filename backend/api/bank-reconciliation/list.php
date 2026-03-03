@@ -44,7 +44,7 @@ $total = dbFetchOne(
     "SELECT COUNT(*) as cnt FROM bank_statement_entries b WHERE {$where}", $params
 )['cnt'];
 
-$sql = "SELECT b.*, u.full_name AS imported_by_name,
+$sql = "SELECT b.*, COALESCE(u.display_name, u.full_name) AS imported_by_name,
             p.paid_amount AS payment_amount, p.check_number AS payment_check_number,
             p.payment_date AS payment_date, p.provider_name AS payment_provider
         FROM bank_statement_entries b

@@ -220,7 +220,7 @@
                     <select class="ec-pill-select" x-model="employeeFilter" @change="commPage = 1; loadTab('active')">
                         <option value="">All Employees</option>
                         <template x-for="u in employees" :key="u.id">
-                            <option :value="u.id" x-text="u.full_name"></option>
+                            <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                         </template>
                     </select>
                 </template>
@@ -249,13 +249,37 @@
                     <select class="ec-pill-select" x-model="historyEmployeeFilter" @change="historyPage = 1; loadTab('history')">
                         <option value="">All Employees</option>
                         <template x-for="u in employees" :key="u.id">
-                            <option :value="u.id" x-text="u.full_name"></option>
+                            <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                         </template>
                     </select>
                 </template>
 
                 <input type="text" class="sp-search" style="width:200px" placeholder="Search..."
                        x-model="historySearch" @input="handleHistorySearch()">
+            </div>
+
+            <!-- Filters (attorney/my cases tab) -->
+            <div class="sp-toolbar-right" x-show="activeTab === 'attorney'" style="gap:6px;">
+                <button class="ec-pill" :class="attorneyStatusFilter === '' && 'on'"
+                        @click="attorneyStatusFilter = ''">All</button>
+                <button class="ec-pill" :class="attorneyStatusFilter === 'unpaid' && 'on'"
+                        @click="attorneyStatusFilter = 'unpaid'">Unpaid</button>
+                <button class="ec-pill" :class="attorneyStatusFilter === 'paid' && 'on'"
+                        @click="attorneyStatusFilter = 'paid'">Paid</button>
+
+                <select class="ec-pill-select" x-model="attorneyYearFilter">
+                    <option value="">All Years</option>
+                    <template x-for="y in yearOptions" :key="y">
+                        <option :value="y" x-text="y"></option>
+                    </template>
+                </select>
+
+                <select class="ec-pill-select" x-model="attorneyMonthFilter">
+                    <option value="">All Months</option>
+                    <template x-for="m in attorneyMonthOptions" :key="m">
+                        <option :value="m" x-text="m"></option>
+                    </template>
+                </select>
             </div>
         </div>
 
@@ -271,31 +295,6 @@
 
         <!-- Tab Content: Attorney -->
         <div x-show="activeTab === 'attorney'" x-cloak>
-            <!-- Attorney filters -->
-            <div class="sp-toolbar" style="padding:8px 24px; flex-wrap:wrap; gap:6px;">
-                <div class="sp-toolbar-right" style="gap:6px;">
-                    <button class="ec-pill" :class="attorneyStatusFilter === '' && 'on'"
-                            @click="attorneyStatusFilter = ''">All</button>
-                    <button class="ec-pill" :class="attorneyStatusFilter === 'unpaid' && 'on'"
-                            @click="attorneyStatusFilter = 'unpaid'">Unpaid</button>
-                    <button class="ec-pill" :class="attorneyStatusFilter === 'paid' && 'on'"
-                            @click="attorneyStatusFilter = 'paid'">Paid</button>
-
-                    <select class="ec-pill-select" x-model="attorneyYearFilter">
-                        <option value="">All Years</option>
-                        <template x-for="y in yearOptions" :key="y">
-                            <option :value="y" x-text="y"></option>
-                        </template>
-                    </select>
-
-                    <select class="ec-pill-select" x-model="attorneyMonthFilter">
-                        <option value="">All Months</option>
-                        <template x-for="m in attorneyMonthOptions" :key="m">
-                            <option :value="m" x-text="m"></option>
-                        </template>
-                    </select>
-                </div>
-            </div>
             <?php include __DIR__ . '/tabs/_tab-attorney.php'; ?>
         </div>
 

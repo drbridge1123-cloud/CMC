@@ -47,4 +47,35 @@ $data = [
 dbUpdate('referral_entries', $data, 'id = ?', [$refId]);
 logActivity($userId, 'referral_updated', 'referral_entries', $refId);
 
+// Auto-create case when case_manager and file_number are set
+$fileNumber = trim($data['file_number'] ?? '');
+$clientName = trim($data['client_name'] ?? '');
+if ($caseManagerId && $fileNumber) {
+    $existingCase = dbFetchOne("SELECT id FROM cases WHERE case_number = ?", [$fileNumber]);
+    if (!$existingCase) {
+        $caseId = dbInsert('cases', [
+            'case_number'              => $fileNumber,
+            'client_name'              => $clientName,
+            'client_dob'               => '2000-01-01',
+            'doi'                      => $data['date_of_loss'] ?: date('Y-m-d'),
+            'assigned_to'              => $caseManagerId,
+            'status'                   => 'prelitigation',
+            'assignment_status'        => 'pending',
+            'assignment_assigned_by'   => $userId,
+            'prelitigation_start_date' => date('Y-m-d'),
+        ]);
+
+        dbInsert('notifications', [
+            'user_id' => $caseManagerId,
+            'type'    => 'case_assignment',
+            'message' => "New case from referral: {$fileNumber} ({$clientName}). Please accept or decline.",
+            'is_read' => 0,
+        ]);
+
+        logActivity($userId, 'case_created_from_referral', 'case', $caseId, [
+            'referral_id' => $refId, 'client_name' => $clientName,
+        ]);
+    }
+}
+
 successResponse(null, 'Referral updated');

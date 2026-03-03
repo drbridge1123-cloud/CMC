@@ -9,7 +9,7 @@ requirePermission('bank_reconciliation');
 $sql = "SELECT
             b.batch_id,
             MIN(b.imported_at) AS imported_at,
-            u.full_name AS imported_by_name,
+            COALESCE(u.display_name, u.full_name) AS imported_by_name,
             COUNT(*) AS total_entries,
             SUM(b.reconciliation_status = 'matched') AS matched_count,
             SUM(b.reconciliation_status = 'unmatched') AS unmatched_count,
@@ -17,7 +17,7 @@ $sql = "SELECT
             SUM(b.amount) AS total_amount
         FROM bank_statement_entries b
         JOIN users u ON b.imported_by = u.id
-        GROUP BY b.batch_id, b.imported_by, u.full_name
+        GROUP BY b.batch_id, b.imported_by, COALESCE(u.display_name, u.full_name)
         ORDER BY imported_at DESC";
 
 $batches = dbFetchAll($sql);

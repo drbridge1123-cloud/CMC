@@ -26,7 +26,7 @@ $versions = dbFetchAll(
         change_notes,
         created_at,
         changed_by,
-        (SELECT full_name FROM users WHERE id = letter_template_versions.changed_by) AS changed_by_name
+        (SELECT COALESCE(display_name, full_name) FROM users WHERE id = letter_template_versions.changed_by) AS changed_by_name
      FROM letter_template_versions
      WHERE template_id = ?
      ORDER BY version_number DESC",

@@ -20,7 +20,7 @@ if (strlen($message) > 5000) {
 }
 
 // Verify recipient exists and is active
-$recipient = dbFetchOne("SELECT id, full_name FROM users WHERE id = ? AND is_active = 1", [$toUserId]);
+$recipient = dbFetchOne("SELECT id, COALESCE(display_name, full_name) AS full_name FROM users WHERE id = ? AND is_active = 1", [$toUserId]);
 if (!$recipient) {
     errorResponse('Recipient not found', 404);
 }

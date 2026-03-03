@@ -7,8 +7,7 @@
         <div class="sp-gold-bar"></div>
         <div class="sp-header" style="flex-wrap:wrap; gap:16px;">
             <div style="flex:1;">
-                <div class="sp-eyebrow">Admin</div>
-                <h1 class="sp-title">Letter Templates</h1>
+                <span class="sp-title" style="font-size:14px;">Letter Templates</span>
             </div>
             <button @click="openCreateModal()" class="sp-new-btn-navy">+ Create Template</button>
         </div>

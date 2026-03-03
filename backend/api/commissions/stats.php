@@ -11,7 +11,12 @@ $user = getCurrentUser();
 $where  = 'deleted_at IS NULL';
 $params = [];
 
-if (!in_array($user['role'], ['admin', 'manager'])) {
+// Always filter by employee_id if provided (for personal stats view)
+$employeeId = $_GET['employee_id'] ?? null;
+if ($employeeId) {
+    $where .= ' AND employee_user_id = ?';
+    $params[] = (int)$employeeId;
+} elseif (!in_array($user['role'], ['admin', 'manager'])) {
     $where .= ' AND employee_user_id = ?';
     $params[] = $userId;
 }
@@ -59,7 +64,7 @@ if (in_array($user['role'], ['admin', 'manager'])) {
 
     // By employee
     $byEmployee = dbFetchAll("
-        SELECT c.employee_user_id, u.full_name AS employee_name,
+        SELECT c.employee_user_id, COALESCE(u.display_name, u.full_name) AS employee_name,
             COUNT(*) AS cases,
             COALESCE(SUM(c.commission), 0) AS total_commission,
             COALESCE(SUM(c.settled), 0) AS total_settled,

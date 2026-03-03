@@ -11,9 +11,9 @@ if (!$caseId) {
 }
 
 $negotiations = dbFetchAll(
-    "SELECT pn.*, ml.balance AS mbds_balance, ml.charges AS mbds_charges
+    "SELECT pn.*, ml.balance AS mbr_balance, ml.charges AS mbr_charges
      FROM provider_negotiations pn
-     LEFT JOIN mbds_lines ml ON pn.mbds_line_id = ml.id
+     LEFT JOIN mbr_lines ml ON pn.mbr_line_id = ml.id
      WHERE pn.case_id = ?
      ORDER BY pn.provider_name",
     [$caseId]

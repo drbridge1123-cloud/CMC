@@ -83,7 +83,7 @@ function reportsPage() {
 
         async loadAttorneyReport() {
             // Attorney cases stats
-            const res = await api.get(`attorney-cases/stats?year=${this.selectedYear}`);
+            const res = await api.get(`attorney/stats?year=${this.selectedYear}`);
             const d = res.data || {};
 
             this.report.attorney = {

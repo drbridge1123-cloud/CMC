@@ -129,7 +129,7 @@
             <tbody>
                 <template x-for="emp in stats.by_employee" :key="emp.employee_user_id">
                     <tr>
-                        <td><span class="sp-client" x-text="emp.full_name"></span></td>
+                        <td><span class="sp-client" x-text="emp.display_name || emp.full_name"></span></td>
                         <td style="text-align:right"><span class="sp-mono" x-text="emp.case_count"></span></td>
                         <td style="text-align:right"><span class="sp-mono" x-text="formatCurrency(emp.total_settled)"></span></td>
                         <td style="text-align:right"><span class="sp-comm" x-text="formatCurrency(emp.total_commission)"></span></td>

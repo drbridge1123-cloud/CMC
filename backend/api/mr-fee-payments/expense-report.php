@@ -31,14 +31,14 @@ $byCategory = dbFetchAll("
 
 // 2. Total by staff (paid_by)
 $byStaff = dbFetchAll("
-    SELECT mfp.paid_by, u.full_name AS staff_name,
+    SELECT mfp.paid_by, COALESCE(u.display_name, u.full_name) AS staff_name,
            COALESCE(SUM(mfp.billed_amount), 0) AS total_billed,
            COALESCE(SUM(mfp.paid_amount), 0) AS total_paid,
            COUNT(*) AS payment_count
     FROM mr_fee_payments mfp
     LEFT JOIN users u ON u.id = mfp.paid_by
     WHERE {$dateWhere}
-    GROUP BY mfp.paid_by, u.full_name
+    GROUP BY mfp.paid_by, COALESCE(u.display_name, u.full_name)
 ", $params);
 
 // 3. Total by payment type

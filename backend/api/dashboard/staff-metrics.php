@@ -10,14 +10,14 @@ if ($method !== 'GET') {
 $userId = requireAuth();
 $user = getCurrentUser();
 
-$isStaff = ($user['role'] === 'staff');
+$isStaff = in_array($user['role'], ['paralegal', 'billing']);
 
 if ($isStaff) {
     // Staff view: personal metrics only
     $myMetrics = dbFetchOne("
         SELECT
             u.id,
-            u.full_name,
+            COALESCE(u.display_name, u.full_name) AS full_name,
             COUNT(DISTINCT c.id) as my_cases,
             COUNT(DISTINCT CASE
                 WHEN cp.deadline < CURDATE()
@@ -38,7 +38,7 @@ if ($isStaff) {
         LEFT JOIN cases c ON c.assigned_to = u.id AND c.status NOT IN ('closed')
         LEFT JOIN case_providers cp ON cp.assigned_to = u.id
         WHERE u.id = ?
-        GROUP BY u.id, u.full_name
+        GROUP BY u.id, COALESCE(u.display_name, u.full_name)
     ", [$userId]);
 
     // Team averages for comparison
@@ -69,7 +69,7 @@ if ($isStaff) {
             FROM users u
             LEFT JOIN cases c ON c.assigned_to = u.id AND c.status NOT IN ('closed')
             LEFT JOIN case_providers cp ON cp.assigned_to = u.id
-            WHERE u.is_active = 1 AND u.role = 'staff'
+            WHERE u.is_active = 1 AND u.role IN ('paralegal', 'billing')
             GROUP BY u.id
         ) t
     ");
@@ -95,7 +95,7 @@ if ($isStaff) {
     $staffMetrics = dbFetchAll("
         SELECT
             u.id,
-            u.full_name,
+            COALESCE(u.display_name, u.full_name) AS full_name,
             u.role,
             COUNT(DISTINCT c.id) as case_count,
             COUNT(DISTINCT CASE
@@ -117,8 +117,8 @@ if ($isStaff) {
         LEFT JOIN cases c ON c.assigned_to = u.id AND c.status NOT IN ('closed')
         LEFT JOIN case_providers cp ON cp.assigned_to = u.id
         WHERE u.is_active = 1
-        GROUP BY u.id, u.full_name, u.role
-        ORDER BY u.role, u.full_name
+        GROUP BY u.id, COALESCE(u.display_name, u.full_name), u.role
+        ORDER BY u.role, COALESCE(u.display_name, u.full_name)
     ");
 
     $totals = [

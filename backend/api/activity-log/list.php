@@ -14,7 +14,7 @@ $params = [];
 // Search
 $search = trim($_GET['search'] ?? '');
 if ($search) {
-    $where .= ' AND (a.action LIKE ? OR a.entity_type LIKE ? OR u.full_name LIKE ?)';
+    $where .= ' AND (a.action LIKE ? OR a.entity_type LIKE ? OR COALESCE(u.display_name, u.full_name) LIKE ?)';
     $params[] = "%{$search}%";
     $params[] = "%{$search}%";
     $params[] = "%{$search}%";
@@ -35,7 +35,7 @@ $total = dbFetchOne("
 ", $params)['cnt'];
 
 $rows = dbFetchAll("
-    SELECT a.*, u.full_name
+    SELECT a.*, COALESCE(u.display_name, u.full_name) AS full_name
     FROM activity_log a
     LEFT JOIN users u ON a.user_id = u.id
     WHERE {$where}

@@ -12,6 +12,14 @@ if (!$user) errorResponse('User not found', 404);
 
 $data = [];
 
+if (isset($input['username'])) {
+    $newUsername = sanitizeString($input['username']);
+    if ($newUsername !== $user['username']) {
+        $existing = dbFetchOne("SELECT id FROM users WHERE username = ? AND id != ?", [$newUsername, $id]);
+        if ($existing) errorResponse('Username already exists');
+        $data['username'] = $newUsername;
+    }
+}
 if (isset($input['full_name'])) $data['full_name'] = sanitizeString($input['full_name']);
 if (isset($input['display_name'])) $data['display_name'] = sanitizeString($input['display_name']);
 if (isset($input['email'])) $data['email'] = sanitizeString($input['email']);
@@ -20,7 +28,7 @@ if (isset($input['card_last4'])) $data['card_last4'] = sanitizeString($input['ca
 if (array_key_exists('team', $input)) $data['team'] = sanitizeString($input['team'] ?? '');
 
 if (isset($input['role'])) {
-    $validRoles = ['admin', 'manager', 'accounting', 'staff', 'attorney'];
+    $validRoles = ['admin', 'manager', 'attorney', 'paralegal', 'billing', 'accounting'];
     if (!validateEnum($input['role'], $validRoles)) errorResponse('Invalid role');
     $data['role'] = $input['role'];
 }

@@ -27,7 +27,7 @@ if ($status && $status !== 'all') {
     $params[] = $status;
 }
 
-$sql = "SELECT tr.*, rb.full_name AS requested_by_name, at.full_name AS assigned_to_name
+$sql = "SELECT tr.*, COALESCE(rb.display_name, rb.full_name) AS requested_by_name, COALESCE(at.display_name, at.full_name) AS assigned_to_name
         FROM traffic_requests tr
         LEFT JOIN users rb ON tr.requested_by = rb.id
         LEFT JOIN users at ON tr.assigned_to = at.id

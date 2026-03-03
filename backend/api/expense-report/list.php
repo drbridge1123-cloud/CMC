@@ -45,8 +45,8 @@ $rows = dbFetchAll(
     "SELECT p.*,
             c.case_number,
             c.client_name,
-            u_paid.full_name AS paid_by_name,
-            u_created.full_name AS created_by_name,
+            COALESCE(u_paid.display_name, u_paid.full_name) AS paid_by_name,
+            COALESCE(u_created.display_name, u_created.full_name) AS created_by_name,
             prov.name AS linked_provider_name
      FROM mr_fee_payments p
      LEFT JOIN cases c ON p.case_id = c.id
@@ -87,14 +87,14 @@ $categoryBreakdown = dbFetchAll(
 $staffWhere = !empty($conditions) ? $whereClause . ' AND p.paid_by IS NOT NULL' : 'WHERE p.paid_by IS NOT NULL';
 $staffBreakdown = dbFetchAll(
     "SELECT p.paid_by,
-            u.full_name AS staff_name,
+            COALESCE(u.display_name, u.full_name) AS staff_name,
             COALESCE(SUM(p.paid_amount), 0) AS total_paid,
             COUNT(*) AS count
      FROM mr_fee_payments p
      LEFT JOIN cases c ON p.case_id = c.id
      LEFT JOIN users u ON p.paid_by = u.id
      {$staffWhere}
-     GROUP BY p.paid_by, u.full_name
+     GROUP BY p.paid_by, COALESCE(u.display_name, u.full_name)
      ORDER BY total_paid DESC",
     $params
 );
@@ -115,10 +115,10 @@ $typeBreakdown = dbFetchAll(
 
 // Staff list for filter dropdown
 $staff = dbFetchAll(
-    "SELECT DISTINCT u.id, u.full_name
+    "SELECT DISTINCT u.id, COALESCE(u.display_name, u.full_name) AS full_name
      FROM users u
      INNER JOIN mr_fee_payments p ON p.paid_by = u.id
-     ORDER BY u.full_name"
+     ORDER BY COALESCE(u.display_name, u.full_name)"
 );
 
 jsonResponse([

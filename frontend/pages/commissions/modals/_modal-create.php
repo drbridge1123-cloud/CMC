@@ -27,7 +27,7 @@
                     <label style="display:block; font-size:9.5px; font-weight:700; color:#8a8a82; text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px;">Employee</label>
                     <select x-model="createForm.employee_user_id" class="sp-select" style="width:100%;">
                         <option value="">-- Select --</option>
-                        <template x-for="u in employees" :key="u.id"><option :value="u.id" x-text="u.full_name"></option></template>
+                        <template x-for="u in employees" :key="u.id"><option :value="u.id" x-text="u.display_name || u.full_name"></option></template>
                     </select>
                 </div>
             </div>

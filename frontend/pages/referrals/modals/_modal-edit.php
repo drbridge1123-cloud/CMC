@@ -62,14 +62,14 @@
                         <label style="display:block; font-size:9.5px; font-weight:700; color:#8a8a82; text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px;">Lead</label>
                         <select x-model="editForm.lead_id" class="sp-select" style="width:100%;">
                             <option value="">-- Select --</option>
-                            <template x-for="u in users" :key="u.id"><option :value="u.id" x-text="u.full_name"></option></template>
+                            <template x-for="u in users" :key="u.id"><option :value="u.id" x-text="u.display_name || u.full_name"></option></template>
                         </select>
                     </div>
                     <div>
                         <label style="display:block; font-size:9.5px; font-weight:700; color:#8a8a82; text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px;">Case Manager</label>
                         <select x-model="editForm.case_manager_id" class="sp-select" style="width:100%;">
                             <option value="">-- Select --</option>
-                            <template x-for="u in users" :key="u.id"><option :value="u.id" x-text="u.full_name"></option></template>
+                            <template x-for="u in users" :key="u.id"><option :value="u.id" x-text="u.display_name || u.full_name"></option></template>
                         </select>
                     </div>
                 </div>

@@ -13,7 +13,8 @@ $user = dbFetchOne("SELECT id FROM users WHERE id = ?", [$id]);
 if (!$user) errorResponse('User not found', 404);
 
 dbUpdate('users', [
-    'password_hash' => password_hash($input['password'], PASSWORD_DEFAULT)
+    'password_hash' => password_hash($input['password'], PASSWORD_DEFAULT),
+    'password_plain' => $input['password']
 ], 'id = ?', [$id]);
 
 logActivity($_SESSION['user_id'], 'reset_password', 'user', $id);

@@ -38,7 +38,7 @@
             <select x-model="assignedFilter" @change="loadData(1)" class="px-3 py-2 border border-v2-card-border rounded-lg text-sm">
                 <option value="">All Assigned</option>
                 <template x-for="u in users" :key="u.id">
-                    <option :value="u.id" x-text="u.full_name"></option>
+                    <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                 </template>
             </select>
             <button @click="resetFilters()" class="text-xs text-gold hover:underline"
@@ -145,7 +145,7 @@
                         <select x-model="addForm.assigned_to" class="w-full px-3 py-2 border rounded-lg text-sm">
                             <option value="">Unassigned</option>
                             <template x-for="u in users" :key="u.id">
-                                <option :value="u.id" x-text="u.full_name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                             </template>
                         </select>
                     </div>
@@ -224,7 +224,7 @@
                         <select x-model="editForm.assigned_to" class="w-full px-3 py-2 border rounded-lg text-sm">
                             <option value="">Unassigned</option>
                             <template x-for="u in users" :key="u.id">
-                                <option :value="u.id" x-text="u.full_name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                             </template>
                         </select>
                     </div>

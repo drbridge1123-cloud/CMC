@@ -52,9 +52,9 @@ $total = dbFetchOne(
 )['cnt'];
 
 $sql = "SELECT r.*,
-            cm.full_name AS case_manager_name,
-            cb.full_name AS created_by_name,
-            ld.full_name AS lead_name,
+            COALESCE(cm.display_name, cm.full_name) AS case_manager_name,
+            COALESCE(cb.display_name, cb.full_name) AS created_by_name,
+            COALESCE(ld.display_name, ld.full_name) AS lead_name,
             ac.id AS case_id, ac.phase, ac.status AS case_status,
             ac.settled, ac.legal_fee, ac.discounted_legal_fee,
             ac.commission, ac.check_received AS case_check_received,

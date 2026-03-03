@@ -52,7 +52,7 @@ $sortColumns = [
     'request_count'     => 'request_count',
     'next_followup_date'=> 'lr.next_followup_date',
     'days_since_request'=> 'days_since_request',
-    'assigned_name'     => 'u.full_name',
+    'assigned_name'     => 'COALESCE(u.display_name, u.full_name)',
     'created_at'        => 'hli.created_at',
 ];
 $sortBy = $sortColumns[$_GET['sort_by'] ?? ''] ?? 'hli.created_at';
@@ -90,7 +90,7 @@ $sql = "SELECT
     hli.insurance_carrier, hli.claim_number, hli.member_id,
     hli.carrier_contact_email, hli.carrier_contact_fax,
     hli.overall_status, hli.assigned_to, hli.note, hli.created_at,
-    u.full_name AS assigned_name,
+    COALESCE(u.display_name, u.full_name) AS assigned_name,
     lr.request_date AS last_request_date,
     lr.request_method AS last_request_method,
     lr.next_followup_date,

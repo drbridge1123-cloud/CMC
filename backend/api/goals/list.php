@@ -27,11 +27,11 @@ if (!in_array($user['role'], ['admin', 'manager'])) {
 }
 
 $goals = dbFetchAll("
-    SELECT g.*, u.full_name AS employee_name
+    SELECT g.*, COALESCE(u.display_name, u.full_name) AS employee_name
     FROM employee_goals g
     JOIN users u ON g.user_id = u.id
     WHERE {$where}
-    ORDER BY u.full_name
+    ORDER BY COALESCE(u.display_name, u.full_name)
 ", $params);
 
 successResponse($goals);

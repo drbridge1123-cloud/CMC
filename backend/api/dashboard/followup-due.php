@@ -13,7 +13,7 @@ $rows = dbFetchAll(
     "SELECT cp.id, cp.case_id, cp.overall_status,
             c.case_number, c.client_name,
             p.name AS provider_name, p.type AS provider_type,
-            u.full_name AS assigned_name,
+            COALESCE(u.display_name, u.full_name) AS assigned_name,
             lr.request_date AS last_request_date,
             lr.next_followup_date,
             DATEDIFF(CURDATE(), lr.request_date) AS days_since_request

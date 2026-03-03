@@ -108,7 +108,7 @@ function getEscalatedItems($role, $userId = null) {
         SELECT cp.id, cp.case_id, cp.deadline, cp.overall_status, cp.assigned_to,
                c.case_number, c.client_name,
                p.name AS provider_name, p.type AS provider_type,
-               u.full_name AS assigned_name,
+               COALESCE(u.display_name, u.full_name) AS assigned_name,
                DATEDIFF(CURDATE(), cp.deadline) AS days_past_deadline
         FROM case_providers cp
         JOIN cases c ON c.id = cp.case_id
@@ -122,7 +122,7 @@ function getEscalatedItems($role, $userId = null) {
     $params = [];
 
     // Staff: only see their own assigned items
-    if ($role === 'staff') {
+    if ($role === 'paralegal') {
         $baseQuery .= " AND cp.assigned_to = ?";
         $params[] = $userId;
     }

@@ -35,7 +35,7 @@ if ((int)$cp['assigned_to'] !== $userId) {
     errorResponse('You are not assigned to this provider', 403);
 }
 
-$currentUser = dbFetchOne("SELECT full_name FROM users WHERE id = ?", [$userId]);
+$currentUser = dbFetchOne("SELECT COALESCE(display_name, full_name) AS full_name FROM users WHERE id = ?", [$userId]);
 
 if ($action === 'accept') {
     dbUpdate('case_providers', [

@@ -31,7 +31,7 @@ if (!empty($_GET['document_type'])) {
 
 $rows = dbFetchAll("
     SELECT cd.*,
-           u.full_name AS uploaded_by_name
+           COALESCE(u.display_name, u.full_name) AS uploaded_by_name
     FROM case_documents cd
     LEFT JOIN users u ON u.id = cd.uploaded_by
     WHERE {$where}

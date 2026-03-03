@@ -31,7 +31,7 @@ function dataManagementPage() {
             this.loading = true;
             try {
                 const [cases, providers, insuranceCo, adjusters, templates, healthLedger, commissions, referrals, bankEntries, attorneyCases] = await Promise.allSettled([
-                    api.get('cases?per_page=1'),
+                    api.get('bl-cases?per_page=1'),
                     api.get('providers?per_page=1'),
                     api.get('insurance-companies'),
                     api.get('adjusters'),
@@ -39,8 +39,8 @@ function dataManagementPage() {
                     api.get('health-ledger?per_page=1'),
                     api.get('commissions?per_page=1'),
                     api.get('referrals?per_page=1'),
-                    api.get('bank-reconciliation/entries?per_page=1'),
-                    api.get('attorney-cases'),
+                    api.get('bank-reconciliation?per_page=1'),
+                    api.get('attorney'),
                 ]);
 
                 this.counts = {
@@ -88,7 +88,7 @@ function dataManagementPage() {
         },
         exportAttorneyCases() {
             const q = this._qs({ attorney_user_id: this.filters.attorneyCases.staff });
-            window.location.href = '/CMC/backend/api/attorney-cases/export' + q;
+            window.location.href = '/CMC/backend/api/attorney/export' + q;
         },
         exportReferrals() {
             const q = this._qs({ lead_id: this.filters.referrals.staff });
@@ -96,6 +96,31 @@ function dataManagementPage() {
         },
 
         // ── Imports ──
+
+        async importAttorneyCases(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.csv')) { showToast('Please select a CSV file', 'error'); event.target.value = ''; return; }
+            if (!confirm(`Import attorney cases from "${file.name}"? Existing cases with matching case numbers will be updated.`)) { event.target.value = ''; return; }
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || '';
+                const res = await fetch('/CMC/backend/api/attorney/import', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok && !data.success) throw new Error(data.message || 'Import failed');
+                showToast(data.message || 'Import complete', 'success');
+                if (data.data?.errors?.length) {
+                    console.warn('Import errors:', data.data.errors);
+                }
+                this.loadCounts();
+            } catch (e) { showToast(e.message, 'error'); }
+            event.target.value = '';
+        },
 
         async importHealthLedger(event) {
             const file = event.target.files[0];
@@ -153,7 +178,7 @@ function dataManagementPage() {
             event.target.value = '';
         },
 
-        async importMbdsReport(event) {
+        async importMbrReport(event) {
             const file = event.target.files[0];
             if (!file) return;
             if (!file.name.toLowerCase().endsWith('.csv')) { showToast('Please select a CSV file', 'error'); event.target.value = ''; return; }
@@ -164,14 +189,14 @@ function dataManagementPage() {
                 formData.append('file', file);
                 formData.append('case_number', caseNumber);
                 const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || '';
-                const res = await fetch('/CMC/backend/api/mbds/import', {
+                const res = await fetch('/CMC/backend/api/mbr/import', {
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + token },
                     body: formData
                 });
                 const data = await res.json();
                 if (!res.ok && !data.success) throw new Error(data.message || data.error || 'Import failed');
-                showToast(data.message || `Imported ${data.imported || 0} MBDS lines`, 'success');
+                showToast(data.message || `Imported ${data.imported || 0} MBR lines`, 'success');
                 this.loadCounts();
             } catch (e) { showToast(e.message, 'error'); }
             event.target.value = '';

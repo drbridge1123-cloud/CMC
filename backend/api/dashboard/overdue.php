@@ -13,7 +13,7 @@ $rows = dbFetchAll(
     "SELECT cp.id, cp.case_id, cp.deadline, cp.overall_status,
             c.case_number, c.client_name,
             p.name AS provider_name, p.type AS provider_type,
-            u.full_name AS assigned_name,
+            COALESCE(u.display_name, u.full_name) AS assigned_name,
             DATEDIFF(CURDATE(), cp.deadline) AS days_overdue,
             DATEDIFF(CURDATE(), cp.deadline) AS days_past_deadline
      FROM case_providers cp

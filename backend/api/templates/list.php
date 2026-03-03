@@ -25,7 +25,7 @@ if (isset($_GET['is_active']) && $_GET['is_active'] !== '') {
 
 $rows = dbFetchAll("
     SELECT lt.*,
-           u.full_name AS created_by_name
+           COALESCE(u.display_name, u.full_name) AS created_by_name
     FROM letter_templates lt
     LEFT JOIN users u ON u.id = lt.created_by
     WHERE {$where}

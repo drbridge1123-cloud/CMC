@@ -77,12 +77,12 @@ msg('Connected to all 3 databases: mrms, commission_db, cmc_db', 'ok');
 $allCmcTables = [
     // Reverse FK dependency order for safe truncation
     'hl_request_attachments', 'hl_requests', 'health_ledger_items',
-    'bank_statement_entries', 'send_log', 'mbds_lines',
+    'bank_statement_entries', 'send_log', 'mbr_lines',
     'request_attachments', 'mr_fee_payments',
     'provider_negotiations', 'case_negotiations',
     'record_receipts', 'record_requests', 'deadline_changes',
     'case_notes', 'case_documents',
-    'mbds_reports',
+    'mbr_reports',
     'notifications', 'activity_log', 'messages',
     'case_providers',
     'letter_template_versions', 'letter_templates',
@@ -295,7 +295,7 @@ copyTable($mrms, $cmc, 'record_receipts');
 copyTable($mrms, $cmc, 'case_notes');
 copyTable($mrms, $cmc, 'request_attachments');
 copyTable($mrms, $cmc, 'deadline_changes');
-copyTable($mrms, $cmc, 'mbds_reports');
+copyTable($mrms, $cmc, 'mbr_reports');
 copyTable($mrms, $cmc, 'case_negotiations');
 copyTable($mrms, $cmc, 'provider_negotiations');
 copyTable($mrms, $cmc, 'mr_fee_payments');
@@ -305,7 +305,7 @@ copyTable($mrms, $cmc, 'mr_fee_payments');
 // ════════════════════════════════════════
 phase('Phase 5: MRMS 4th-level Dependent Tables');
 
-copyTable($mrms, $cmc, 'mbds_lines');
+copyTable($mrms, $cmc, 'mbr_lines');
 copyTable($mrms, $cmc, 'send_log');
 copyTable($mrms, $cmc, 'bank_statement_entries');
 copyTable($mrms, $cmc, 'health_ledger_items');

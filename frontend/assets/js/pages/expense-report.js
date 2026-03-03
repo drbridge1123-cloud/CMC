@@ -60,7 +60,7 @@ function expenseReportPage() {
 
         goToCase(caseId) {
             if (caseId) {
-                window.location.href = '/CMC/frontend/pages/cases/detail.php?id=' + caseId;
+                window.location.href = '/CMC/frontend/pages/bl-cases/detail.php?id=' + caseId;
             }
         },
 

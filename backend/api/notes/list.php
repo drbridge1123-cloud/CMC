@@ -31,7 +31,7 @@ if (!empty($_GET['note_type'])) {
 
 $rows = dbFetchAll("
     SELECT cn.*,
-           u.full_name AS author_name,
+           COALESCE(u.display_name, u.full_name) AS author_name,
            p.name AS provider_name
     FROM case_notes cn
     JOIN users u ON u.id = cn.user_id

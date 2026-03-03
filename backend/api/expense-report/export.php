@@ -45,7 +45,7 @@ $rows = dbFetchAll(
             p.paid_amount,
             p.payment_type,
             p.check_number,
-            u_paid.full_name AS paid_by_name,
+            COALESCE(u_paid.display_name, u_paid.full_name) AS paid_by_name,
             p.notes
      FROM mr_fee_payments p
      LEFT JOIN cases c ON p.case_id = c.id

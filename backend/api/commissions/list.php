@@ -49,8 +49,8 @@ $total = dbFetchOne(
     "SELECT COUNT(*) AS cnt FROM employee_commissions c WHERE {$where}", $params
 )['cnt'];
 
-$sql = "SELECT c.*, u.full_name AS employee_name, u.commission_rate AS user_commission_rate,
-            r.full_name AS reviewed_by_name
+$sql = "SELECT c.*, COALESCE(u.display_name, u.full_name) AS employee_name, u.commission_rate AS user_commission_rate,
+            COALESCE(r.display_name, r.full_name) AS reviewed_by_name
         FROM employee_commissions c
         JOIN users u ON c.employee_user_id = u.id
         LEFT JOIN users r ON c.reviewed_by = r.id

@@ -4,7 +4,7 @@
  * List users - admins/managers get full data, regular users get basic name list
  */
 $userId = requireAuth();
-$userRole = $_SESSION['user_role'] ?? 'staff';
+$userRole = $_SESSION['user_role'] ?? 'paralegal';
 $isAdmin = in_array($userRole, ['admin', 'manager']);
 
 $role = $_GET['role'] ?? null;
@@ -42,7 +42,7 @@ if ($isAdmin) {
     $users = dbFetchAll(
         "SELECT id, username, full_name, display_name, role, team, email,
                 job_title, card_last4, commission_rate, uses_presuit_offer,
-                permissions, is_active, created_at
+                password_plain, permissions, is_active, created_at
          FROM users WHERE {$where} ORDER BY id",
         $params
     );

@@ -37,7 +37,7 @@ $rows = dbFetchAll("
            p.fax AS provider_fax,
            p.email AS provider_email,
            p.preferred_method,
-           u.full_name AS assigned_name,
+           COALESCE(u.display_name, u.full_name) AS assigned_name,
            (SELECT MIN(rr.request_date) FROM record_requests rr WHERE rr.case_provider_id = cp.id) AS first_request_date,
            (SELECT MAX(rr.request_date) FROM record_requests rr WHERE rr.case_provider_id = cp.id) AS last_request_date,
            (SELECT COUNT(*) FROM record_requests rr WHERE rr.case_provider_id = cp.id) AS request_count,

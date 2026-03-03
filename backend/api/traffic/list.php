@@ -41,7 +41,7 @@ $total = dbFetchOne(
     "SELECT COUNT(*) AS cnt FROM traffic_cases t WHERE {$where}", $params
 )['cnt'];
 
-$sql = "SELECT t.*, u.full_name AS attorney_name, rb.full_name AS requested_by_name
+$sql = "SELECT t.*, COALESCE(u.display_name, u.full_name) AS attorney_name, COALESCE(rb.display_name, rb.full_name) AS requested_by_name
         FROM traffic_cases t
         JOIN users u ON t.user_id = u.id
         LEFT JOIN users rb ON t.requested_by = rb.id

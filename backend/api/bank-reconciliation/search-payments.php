@@ -36,7 +36,7 @@ if ($dateTo) {
     $params[] = $dateTo;
 }
 
-$sql = "SELECT p.*, c.case_number, c.client_name, u.full_name AS paid_by_name
+$sql = "SELECT p.*, c.case_number, c.client_name, COALESCE(u.display_name, u.full_name) AS paid_by_name
         FROM mr_fee_payments p
         LEFT JOIN cases c ON p.case_id = c.id
         LEFT JOIN users u ON p.paid_by = u.id

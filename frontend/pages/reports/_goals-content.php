@@ -147,7 +147,7 @@
                         <select x-model="form.user_id" class="sp-select" style="width:100%; padding:8px 12px;">
                             <option value="">Select employee...</option>
                             <template x-for="u in employees" :key="u.id">
-                                <option :value="u.id" x-text="u.full_name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                             </template>
                         </select>
                     </div>

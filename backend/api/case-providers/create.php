@@ -62,15 +62,15 @@ if (isset($input['notes'])) {
 
 $id = dbInsert('case_providers', $data);
 
-// Auto-create MBDS line if report exists
-$mbdsReport = dbFetchOne("SELECT id FROM mbds_reports WHERE case_id = ?", [$caseId]);
-if ($mbdsReport) {
+// Auto-create MBR line if report exists
+$mbrReport = dbFetchOne("SELECT id FROM mbr_reports WHERE case_id = ?", [$caseId]);
+if ($mbrReport) {
     $maxSort = dbFetchOne(
-        "SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM mbds_lines WHERE report_id = ?",
-        [$mbdsReport['id']]
+        "SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM mbr_lines WHERE report_id = ?",
+        [$mbrReport['id']]
     );
-    dbInsert('mbds_lines', [
-        'report_id'          => $mbdsReport['id'],
+    dbInsert('mbr_lines', [
+        'report_id'          => $mbrReport['id'],
         'line_type'          => 'provider',
         'provider_name'      => $provider['name'],
         'case_provider_id'   => $id,

@@ -27,7 +27,7 @@ if ($status && $status !== 'all') {
 }
 
 $rows = dbFetchAll("
-    SELECT dr.*, rb.full_name AS requested_by_name, at.full_name AS assigned_to_name
+    SELECT dr.*, COALESCE(rb.display_name, rb.full_name) AS requested_by_name, COALESCE(at.display_name, at.full_name) AS assigned_to_name
     FROM demand_requests dr
     LEFT JOIN users rb ON dr.requested_by = rb.id
     LEFT JOIN users at ON dr.assigned_to = at.id

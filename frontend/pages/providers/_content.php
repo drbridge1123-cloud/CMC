@@ -1,6 +1,27 @@
 <!-- All sp- styles loaded from shared sp-design-system.css -->
 
 <style>
+.db-page-tabs { display:flex; gap:0; margin-bottom:18px; border-bottom:2px solid #e8e4dc; }
+.db-page-tab { padding:10px 22px; font-size:13px; font-weight:600; color:#8a8a82; background:none; border:none; cursor:pointer; position:relative; font-family:'IBM Plex Sans',sans-serif; transition:color .15s; }
+.db-page-tab:hover { color:#1a2535; }
+.db-page-tab.active { color:#C9A84C; }
+.db-page-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px; background:#C9A84C; border-radius:1px; }
+</style>
+
+<div x-data="{ pageTab: 'database' }">
+
+<!-- Page-level Tabs -->
+<div class="db-page-tabs">
+    <button class="db-page-tab" :class="pageTab === 'database' && 'active'" @click="pageTab = 'database'">Database</button>
+    <?php if (hasPermission('templates')): ?>
+    <button class="db-page-tab" :class="pageTab === 'templates' && 'active'" @click="pageTab = 'templates'">Templates</button>
+    <?php endif; ?>
+</div>
+
+<!-- ══════ DATABASE TAB ══════ -->
+<div x-show="pageTab === 'database'">
+
+<style>
 .prov-row { border-left: 3px solid transparent; cursor: pointer; transition: all .1s; }
 .prov-row:hover, .prov-row-active { background: rgba(201,168,76,.05) !important; border-left-color: #C9A84C; }
 .db-row { border-left: 3px solid transparent; cursor: pointer; transition: all .1s; }
@@ -645,4 +666,16 @@
 
     </div><!-- /sp-card -->
 
-</div>
+</div><!-- /activeTab x-data -->
+</div><!-- /database tab -->
+
+<!-- ══════ TEMPLATES TAB ══════ -->
+<?php if (hasPermission('templates')): ?>
+<template x-if="pageTab === 'templates'">
+    <div>
+        <?php include __DIR__ . '/../../pages/admin/_templates-content.php'; ?>
+    </div>
+</template>
+<?php endif; ?>
+
+</div><!-- /pageTab x-data -->

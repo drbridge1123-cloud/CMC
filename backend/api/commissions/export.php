@@ -37,7 +37,7 @@ if ($year) {
 }
 
 $rows = dbFetchAll("
-    SELECT c.case_number, c.client_name, c.case_type, u.full_name AS employee,
+    SELECT c.case_number, c.client_name, c.case_type, COALESCE(u.display_name, u.full_name) AS employee,
            c.settled, c.presuit_offer, c.difference, c.fee_rate, c.legal_fee,
            c.discounted_legal_fee, c.commission_rate, c.commission,
            c.is_marketing, c.month, c.status, c.check_received, c.note

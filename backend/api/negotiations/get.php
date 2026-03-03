@@ -11,7 +11,7 @@ if (!$caseId) {
 }
 
 $negotiations = dbFetchAll(
-    "SELECT cn.*, u.full_name AS created_by_name
+    "SELECT cn.*, COALESCE(u.display_name, u.full_name) AS created_by_name
      FROM case_negotiations cn
      LEFT JOIN users u ON cn.created_by = u.id
      WHERE cn.case_id = ?

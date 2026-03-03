@@ -22,7 +22,9 @@ document.addEventListener('alpine:init', () => {
         get isAdmin() { return this.user?.role === 'admin'; },
         get isManager() { return this.user?.role === 'manager'; },
         get isAttorney() { return this.user?.role === 'attorney'; },
-        get isStaff() { return this.user?.role === 'staff'; },
+        get isParalegal() { return this.user?.role === 'paralegal'; },
+        get isBilling() { return this.user?.role === 'billing'; },
+        get isStaff() { return ['paralegal', 'billing'].includes(this.user?.role); },
 
         hasPermission(perm) {
             if (!this.user) return false;

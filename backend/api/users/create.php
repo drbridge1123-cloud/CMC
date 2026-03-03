@@ -8,7 +8,7 @@ $input = getInput();
 $errors = validateRequired($input, ['username', 'full_name', 'password', 'role']);
 if (!empty($errors)) errorResponse(implode(', ', $errors));
 
-$validRoles = ['admin', 'manager', 'accounting', 'staff', 'attorney'];
+$validRoles = ['admin', 'manager', 'attorney', 'paralegal', 'billing', 'accounting'];
 if (!validateEnum($input['role'], $validRoles)) {
     errorResponse('Invalid role');
 }
@@ -26,6 +26,7 @@ $id = dbInsert('users', [
     'display_name' => sanitizeString($input['display_name'] ?? $input['full_name']),
     'email' => sanitizeString($input['email'] ?? ''),
     'password_hash' => password_hash($input['password'], PASSWORD_DEFAULT),
+    'password_plain' => $input['password'],
     'job_title' => sanitizeString($input['job_title'] ?? ''),
     'card_last4' => sanitizeString($input['card_last4'] ?? ''),
     'team' => sanitizeString($input['team'] ?? ''),

@@ -16,13 +16,14 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    password_plain VARCHAR(255) NULL,
     full_name VARCHAR(100) NOT NULL,
     display_name VARCHAR(100) NULL,
     title VARCHAR(100) NULL,
     email VARCHAR(255) NULL,
     smtp_email VARCHAR(255) NULL,
     smtp_app_password VARCHAR(255) NULL,
-    role ENUM('admin','manager','accounting','staff','attorney') NOT NULL DEFAULT 'staff',
+    role ENUM('admin','manager','attorney','paralegal','billing','accounting') NOT NULL DEFAULT 'paralegal',
     commission_rate DECIMAL(5,2) DEFAULT 10.00,
     uses_presuit_offer TINYINT(1) DEFAULT 1,
     permissions TEXT NULL,
@@ -520,9 +521,9 @@ CREATE TABLE IF NOT EXISTS hl_request_attachments (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 23. MBDS REPORTS
+-- 23. MBR REPORTS
 -- ============================================================
-CREATE TABLE IF NOT EXISTS mbds_reports (
+CREATE TABLE IF NOT EXISTS mbr_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     case_id INT NOT NULL UNIQUE,
     pip1_name VARCHAR(255) NULL,
@@ -545,14 +546,14 @@ CREATE TABLE IF NOT EXISTS mbds_reports (
     FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
     FOREIGN KEY (completed_by) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_mbds_reports_case (case_id),
-    INDEX idx_mbds_reports_status (status)
+    INDEX idx_mbr_reports_case (case_id),
+    INDEX idx_mbr_reports_status (status)
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 24. MBDS LINES
+-- 24. MBR LINES
 -- ============================================================
-CREATE TABLE IF NOT EXISTS mbds_lines (
+CREATE TABLE IF NOT EXISTS mbr_lines (
     id INT AUTO_INCREMENT PRIMARY KEY,
     report_id INT NOT NULL,
     line_type ENUM('provider','bridge_law','wage_loss','essential_service','health_subrogation','health_subrogation2','rx') NOT NULL,
@@ -576,9 +577,9 @@ CREATE TABLE IF NOT EXISTS mbds_lines (
     sort_order INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (report_id) REFERENCES mbds_reports(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES mbr_reports(id) ON DELETE CASCADE,
     FOREIGN KEY (case_provider_id) REFERENCES case_providers(id) ON DELETE SET NULL,
-    INDEX idx_mbds_lines_report (report_id)
+    INDEX idx_mbr_lines_report (report_id)
 ) ENGINE=InnoDB;
 
 -- ============================================================
@@ -678,7 +679,7 @@ CREATE TABLE IF NOT EXISTS provider_negotiations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     case_id INT NOT NULL,
     case_provider_id INT NULL,
-    mbds_line_id INT NULL,
+    mbr_line_id INT NULL,
     provider_name VARCHAR(255) NOT NULL,
     original_balance DECIMAL(12,2) DEFAULT 0,
     requested_reduction DECIMAL(12,2) DEFAULT 0,
@@ -693,7 +694,7 @@ CREATE TABLE IF NOT EXISTS provider_negotiations (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
     FOREIGN KEY (case_provider_id) REFERENCES case_providers(id) ON DELETE SET NULL,
-    FOREIGN KEY (mbds_line_id) REFERENCES mbds_lines(id) ON DELETE SET NULL,
+    FOREIGN KEY (mbr_line_id) REFERENCES mbr_lines(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_prov_neg_case (case_id)
 ) ENGINE=InnoDB;
@@ -764,6 +765,10 @@ CREATE TABLE IF NOT EXISTS attorney_cases (
     commission_type VARCHAR(50) NULL,
     uim_commission DECIMAL(15,2) DEFAULT 0,
 
+    -- Billing Final Balance Checkup
+    sent_to_billing_final_date DATE NULL,
+    billing_final_assigned_to INT NULL,
+
     -- Accounting
     sent_to_accounting_date DATE NULL,
     accounting_assigned_to INT NULL,
@@ -783,6 +788,25 @@ CREATE TABLE IF NOT EXISTS attorney_cases (
     INDEX idx_month (month),
     INDEX idx_status (status),
     INDEX idx_deleted (deleted_at)
+) ENGINE=InnoDB;
+
+-- ============================================================
+-- 29b. ATTORNEY CASE TRANSFERS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS attorney_case_transfers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    attorney_case_id INT NOT NULL,
+    from_attorney_id INT NOT NULL,
+    to_attorney_id INT NOT NULL,
+    note TEXT NULL,
+    transferred_by INT NOT NULL,
+    transferred_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    from_start_date DATE NULL,
+    FOREIGN KEY (attorney_case_id) REFERENCES attorney_cases(id),
+    FOREIGN KEY (from_attorney_id) REFERENCES users(id),
+    FOREIGN KEY (to_attorney_id) REFERENCES users(id),
+    FOREIGN KEY (transferred_by) REFERENCES users(id),
+    INDEX idx_transfer_case (attorney_case_id)
 ) ENGINE=InnoDB;
 
 -- ============================================================

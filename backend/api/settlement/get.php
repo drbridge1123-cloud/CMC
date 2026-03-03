@@ -47,22 +47,22 @@ foreach ($negotiations as $n) {
     }
 }
 
-// MBDS data - medical bills
-$mbdsReport = dbFetchOne("SELECT id, pip1_name, pip2_name, health1_name, health2_name, health3_name FROM mbds_reports WHERE case_id = ?", [$caseId]);
+// MBR data - medical bills
+$mbrReport = dbFetchOne("SELECT id, pip1_name, pip2_name, health1_name, health2_name, health3_name FROM mbr_reports WHERE case_id = ?", [$caseId]);
 $medicalBills = ['total_charges' => 0, 'total_balance' => 0, 'providers' => []];
 $healthSubrogation = 0;
 $specialEntries = [];
 $pip1Total = 0;
 $pip2Total = 0;
 
-if ($mbdsReport) {
-    $mbdsLines = dbFetchAll(
+if ($mbrReport) {
+    $mbrLines = dbFetchAll(
         "SELECT id, line_type, provider_name, charges, balance, case_provider_id, pip1_amount, pip2_amount
-         FROM mbds_lines WHERE report_id = ? ORDER BY sort_order",
-        [$mbdsReport['id']]
+         FROM mbr_lines WHERE report_id = ? ORDER BY sort_order",
+        [$mbrReport['id']]
     );
 
-    foreach ($mbdsLines as $line) {
+    foreach ($mbrLines as $line) {
         // Accumulate PIP totals from all lines
         $pip1Total += (float)($line['pip1_amount'] ?? 0);
         $pip2Total += (float)($line['pip2_amount'] ?? 0);
@@ -96,9 +96,9 @@ if ($mbdsReport) {
 
 // Provider negotiations (negotiated amounts)
 $providerNegotiations = dbFetchAll(
-    "SELECT pn.*, ml.balance AS mbds_balance
+    "SELECT pn.*, ml.balance AS mbr_balance
      FROM provider_negotiations pn
-     LEFT JOIN mbds_lines ml ON pn.mbds_line_id = ml.id
+     LEFT JOIN mbr_lines ml ON pn.mbr_line_id = ml.id
      WHERE pn.case_id = ?",
     [$caseId]
 );
@@ -107,7 +107,7 @@ $providerNegotiations = dbFetchAll(
 $negotiatedMedicalBalance = 0;
 $provNegMap = [];
 foreach ($providerNegotiations as $pn) {
-    $provNegMap[$pn['mbds_line_id']] = $pn;
+    $provNegMap[$pn['mbr_line_id']] = $pn;
 }
 
 foreach ($medicalBills['providers'] as &$provider) {
@@ -135,10 +135,10 @@ $expenses = dbFetchOne(
     [$caseId]
 );
 
-// PIP info from MBDS report
+// PIP info from MBR report
 $pipInfo = [
-    'pip1_name' => $mbdsReport['pip1_name'] ?? null,
-    'pip2_name' => $mbdsReport['pip2_name'] ?? null,
+    'pip1_name' => $mbrReport['pip1_name'] ?? null,
+    'pip2_name' => $mbrReport['pip2_name'] ?? null,
     'pip1_total' => round($pip1Total, 2),
     'pip2_total' => round($pip2Total, 2),
 ];

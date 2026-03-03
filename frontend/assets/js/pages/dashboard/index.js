@@ -68,7 +68,7 @@ function dashboardPage() {
 
         async loadCases() {
             try {
-                const res = await api.get('cases?per_page=10');
+                const res = await api.get('bl-cases?per_page=10');
                 this.cases = res.data || [];
             } catch (e) {}
         },

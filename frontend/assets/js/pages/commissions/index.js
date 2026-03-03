@@ -38,7 +38,7 @@ function commissionsPage() {
         // -------------------------------------------------------
         get isAdmin() {
             const u = Alpine.store('auth')?.user;
-            return u && (u.role === 'admin' || u.role === 'manager');
+            return u && u.role === 'admin';
         },
 
         // -------------------------------------------------------
@@ -248,8 +248,8 @@ function commissionsPage() {
             }
             if (this.attorneyYearFilter) {
                 cases = cases.filter(c => {
-                    const d = c.assigned_date || c.submitted_at || '';
-                    return d.startsWith(String(this.attorneyYearFilter));
+                    const m = c.month || '';
+                    return m.includes(String(this.attorneyYearFilter));
                 });
             }
             if (this.attorneyMonthFilter) {
@@ -279,8 +279,16 @@ function commissionsPage() {
         //  Lifecycle
         // -------------------------------------------------------
         async init() {
+            // Wait for auth store to be ready
+            const auth = Alpine.store('auth');
+            if (auth && auth.loading) {
+                await new Promise(r => {
+                    const iv = setInterval(() => { if (!auth.loading) { clearInterval(iv); r(); } }, 50);
+                });
+            }
+
             // Insert Attorney tab before Admin
-            this.tabs.push({ key: 'attorney', label: 'Attorney', count: 0 });
+            this.tabs.push({ key: 'attorney', label: 'My Cases', count: 0 });
             if (this.isAdmin) {
                 this.tabs.push({ key: 'admin', label: 'Admin', count: 0 });
             }
@@ -304,7 +312,7 @@ function commissionsPage() {
                 if (t.key === 'active') return { ...t, count: (this.stats.in_progress_count || 0) + (this.stats.unpaid_count || 0) };
                 if (t.key === 'history') return { ...t, count: (this.stats.paid_count || 0) + (this.stats.rejected_count || 0) };
                 if (t.key === 'attorney') return { ...t, count: this.attorneyCases.length };
-                if (t.key === 'admin') return { ...t, count: this.stats.unpaid_count || 0 };
+                if (t.key === 'admin') return { ...t, count: this.adminCases.length };
                 return t;
             });
         },
@@ -317,14 +325,18 @@ function commissionsPage() {
                 const res = await api.get('users?active_only=1');
                 // Filter to commission-eligible roles (staff, manager)
                 this.employees = (res.data || []).filter(u =>
-                    u.role === 'staff' || u.role === 'manager'
+                    u.role === 'paralegal' || u.role === 'billing' || u.role === 'manager'
                 );
             } catch (e) { /* ignore */ }
         },
 
         async loadStats() {
             try {
-                const res = await api.get('commissions/stats');
+                // Show personal stats (KPI cards show current user's own commissions)
+                const myId = Alpine.store('auth')?.user?.id;
+                let url = 'commissions/stats';
+                if (myId) url += '?employee_id=' + myId;
+                const res = await api.get(url);
                 this.stats = res.data || this.stats;
             } catch (e) { /* ignore */ }
         },
@@ -348,17 +360,15 @@ function commissionsPage() {
             if (tab === 'history') this.historyPage = 1;
             try {
                 const params = { page, per_page: 500 };
+                // Active & History tabs always show current user's own commissions
+                const myId = Alpine.store('auth')?.user?.id;
+                if (myId) params.employee_id = myId;
 
                 if (tab === 'active') {
-                    // in_progress + unpaid
                     if (this.statusFilter) params.status = this.statusFilter;
-                    else params.status = 'in_progress,unpaid'; // not directly supported, use no filter
                     if (this.search) params.search = this.search;
                     if (this.yearFilter) params.year = this.yearFilter;
                     if (this.employeeFilter) params.employee_id = this.employeeFilter;
-                    // Remove composite status - fetch all, filter active client-side
-                    delete params.status;
-                    if (this.statusFilter) params.status = this.statusFilter;
                 } else if (tab === 'history') {
                     if (this.historyStatusFilter) params.status = this.historyStatusFilter;
                     if (this.historySearch) params.search = this.historySearch;
@@ -408,7 +418,11 @@ function commissionsPage() {
         async loadAttorneyCases() {
             this.loading = true;
             try {
-                const res = await api.get('attorney-cases?phase=settled&per_page=10000');
+                // "My Cases" — only show cases where current user is the assigned attorney
+                const myId = Alpine.store('auth')?.user?.id;
+                let url = 'attorney?phase=settled&per_page=10000';
+                if (myId) url += '&attorney_user_id=' + myId;
+                const res = await api.get(url);
                 this.attorneyCases = (res.data || []).filter(c =>
                     parseFloat(c.commission) > 0 || parseFloat(c.uim_commission) > 0
                 );
@@ -421,7 +435,7 @@ function commissionsPage() {
 
         async toggleAttorneyCheck(c) {
             try {
-                await api.put('attorney-cases/' + c.id, { check_received: c.check_received ? 0 : 1 });
+                await api.put('attorney/' + c.id, { check_received: c.check_received ? 0 : 1 });
                 c.check_received = c.check_received ? 0 : 1;
             } catch (e) {
                 showToast(e.message, 'error');
@@ -539,7 +553,7 @@ function commissionsPage() {
         async saveAttorneyCase() {
             this.saving = true;
             try {
-                await api.put('attorney-cases/' + this.attForm.id, {
+                await api.put('attorney/' + this.attForm.id, {
                     settled: this.attForm.settled,
                     discounted_legal_fee: this.attForm.discounted_legal_fee,
                     commission: this.attForm.commission,

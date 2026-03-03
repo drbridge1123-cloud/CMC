@@ -12,11 +12,10 @@ function usersPage() {
         showModal: false,
         editingUser: null,
         saving: false,
-
-        // Password reset
-        showPwModal: false,
-        pwUser: null,
-        newPassword: '',
+        changingPassword: false,
+        changingCard: false,
+        showPasswords: false,
+        showModalPassword: false,
 
         // Form
         form: {
@@ -28,7 +27,7 @@ function usersPage() {
             job_title: '',
             card_last4: '',
             team: '',
-            role: 'staff',
+            role: 'paralegal',
             commission_rate: 10,
             uses_presuit_offer: true,
             permissions: []
@@ -43,13 +42,18 @@ function usersPage() {
             { value: 'accounting', label: 'Accounting' }
         ],
 
+        // Job title options (dynamically extended)
+        jobTitleOptions: ['Billing Assistant', 'Senior Paralegal', 'Paralegal', 'Attorney', 'Administrator', 'Manager', 'Accountant'],
+        addingJobTitle: false,
+
         // Role badge colors
         roleColors: {
             admin: 'bg-purple-100 text-purple-700',
             manager: 'bg-blue-100 text-blue-700',
-            accounting: 'bg-yellow-100 text-yellow-700',
-            staff: 'bg-green-100 text-green-700',
-            attorney: 'bg-indigo-100 text-indigo-700'
+            attorney: 'bg-indigo-100 text-indigo-700',
+            paralegal: 'bg-green-100 text-green-700',
+            billing: 'bg-teal-100 text-teal-700',
+            accounting: 'bg-yellow-100 text-yellow-700'
         },
 
         // All permission definitions (matches backend auth.php)
@@ -65,7 +69,7 @@ function usersPage() {
             { key: 'commissions', label: 'Commissions' },
             { key: 'commission_admin', label: 'Commission Admin' },
             { key: 'referrals', label: 'Referrals' },
-            { key: 'mbds', label: 'MBDS' },
+            { key: 'mbr', label: 'MBR' },
             { key: 'health_tracker', label: 'Health Tracker' },
             { key: 'expense_report', label: 'Expense Report' },
             { key: 'bank_reconciliation', label: 'Bank Reconciliation' },
@@ -84,7 +88,7 @@ function usersPage() {
                 'dashboard','cases','providers','mr_tracker',
                 'prelitigation_tracker','accounting_tracker',
                 'attorney_cases','traffic','commissions','commission_admin',
-                'referrals','mbds','health_tracker','expense_report',
+                'referrals','mbr','health_tracker','expense_report',
                 'bank_reconciliation','reports','goals',
                 'users','templates','activity_log','data_management','messages'
             ],
@@ -94,25 +98,40 @@ function usersPage() {
                 'attorney_cases','commissions','referrals',
                 'reports','goals','messages','templates'
             ],
-            accounting: [
-                'dashboard','cases','providers','mr_tracker',
-                'accounting_tracker',
-                'mbds','health_tracker','expense_report',
-                'bank_reconciliation','messages'
+            attorney: [
+                'dashboard','attorney_cases','traffic',
+                'commissions','messages'
             ],
-            staff: [
+            paralegal: [
                 'dashboard','cases','providers','mr_tracker',
                 'prelitigation_tracker',
                 'commissions','referrals','goals','messages'
             ],
-            attorney: [
-                'dashboard','attorney_cases','traffic',
+            billing: [
+                'dashboard','cases','providers','mr_tracker',
                 'commissions','messages'
+            ],
+            accounting: [
+                'dashboard','cases','providers','mr_tracker',
+                'accounting_tracker',
+                'mbr','health_tracker','expense_report',
+                'bank_reconciliation','messages'
             ]
         },
 
+        _ready: false,
+
         init() {
             this.loadUsers();
+            // Clear browser autofill then enable search input handling
+            setTimeout(() => {
+                this.search = '';
+                this._ready = true;
+            }, 600);
+        },
+
+        handleSearch() {
+            if (this._ready) this.loadUsers();
         },
 
         async loadUsers() {
@@ -123,6 +142,13 @@ function usersPage() {
                 if (this.filterRole) url += `role=${this.filterRole}&`;
                 const res = await api.get(url);
                 this.users = res.data || [];
+                // Merge any new job titles from loaded users
+                this.users.forEach(u => {
+                    if (u.job_title && !this.jobTitleOptions.includes(u.job_title)) {
+                        this.jobTitleOptions.push(u.job_title);
+                    }
+                });
+                this.jobTitleOptions.sort();
             } catch (e) {
                 showToast(e.message, 'error');
             }
@@ -140,10 +166,10 @@ function usersPage() {
                 job_title: '',
                 card_last4: '',
                 team: '',
-                role: 'staff',
+                role: 'paralegal',
                 commission_rate: 10,
                 uses_presuit_offer: true,
-                permissions: [...this.roleDefaults.staff]
+                permissions: [...this.roleDefaults.paralegal]
             };
             this.showModal = true;
         },
@@ -155,7 +181,7 @@ function usersPage() {
                 full_name: user.full_name,
                 display_name: user.display_name || '',
                 email: user.email || '',
-                password: '',
+                password: user.password_plain || '',
                 job_title: user.job_title || '',
                 card_last4: user.card_last4 || '',
                 team: user.team || '',
@@ -164,17 +190,21 @@ function usersPage() {
                 uses_presuit_offer: !!user.uses_presuit_offer,
                 permissions: Array.isArray(user.permissions)
                     ? [...user.permissions]
-                    : [...(this.roleDefaults[user.role] || this.roleDefaults.staff)]
+                    : [...(this.roleDefaults[user.role] || this.roleDefaults.paralegal)]
             };
+            this.changingPassword = false;
+            this.changingCard = false;
+            this.showModalPassword = false;
+            this.addingJobTitle = false;
             this.showModal = true;
         },
 
         onRoleChange() {
-            this.form.permissions = [...(this.roleDefaults[this.form.role] || this.roleDefaults.staff)];
+            this.form.permissions = [...(this.roleDefaults[this.form.role] || this.roleDefaults.paralegal)];
         },
 
         resetPermissions() {
-            this.form.permissions = [...(this.roleDefaults[this.form.role] || this.roleDefaults.staff)];
+            this.form.permissions = [...(this.roleDefaults[this.form.role] || this.roleDefaults.paralegal)];
         },
 
         togglePermission(key) {
@@ -213,7 +243,16 @@ function usersPage() {
                 };
 
                 if (this.editingUser) {
+                    // Update user info
                     await api.put(`users/${this.editingUser.id}`, payload);
+
+                    // If password was explicitly changed via Change button
+                    if (this.changingPassword && this.form.password) {
+                        await api.put(`users/${this.editingUser.id}/reset-password`, {
+                            password: this.form.password
+                        });
+                    }
+
                     showToast('User updated', 'success');
                 } else {
                     payload.password = this.form.password;
@@ -229,37 +268,25 @@ function usersPage() {
             this.saving = false;
         },
 
-        resetPassword(user) {
-            this.pwUser = user;
-            this.newPassword = '';
-            this.showPwModal = true;
-        },
-
-        async doResetPassword() {
-            if (!this.newPassword) {
-                showToast('Enter a new password', 'error');
-                return;
-            }
-            try {
-                await api.put(`users/${this.pwUser.id}/reset-password`, {
-                    password: this.newPassword
-                });
-                showToast('Password reset successfully', 'success');
-                this.showPwModal = false;
-            } catch (e) {
-                showToast(e.message, 'error');
-            }
-        },
-
         async toggleActive(user) {
-            const action = user.is_active ? 'disable' : 'enable';
-            if (!confirm(`Are you sure you want to ${action} ${user.full_name}?`)) return;
             try {
                 await api.put(`users/${user.id}/toggle-active`);
-                showToast(`User ${action}d`, 'success');
-                await this.loadUsers();
+                user.is_active = user.is_active ? 0 : 1;
+                showToast(user.is_active ? 'User enabled' : 'User disabled', 'success');
             } catch (e) {
                 showToast(e.message, 'error');
+            }
+        },
+
+        async deleteUser(user) {
+            if (!confirm(`Are you sure you want to permanently delete ${user.full_name}?\n\nThis action cannot be undone.`)) return;
+            try {
+                await api.delete(`users/${user.id}`);
+                showToast('User deleted', 'success');
+                this.showModal = false;
+                await this.loadUsers();
+            } catch (e) {
+                showToast(e.data?.message || e.message || 'Failed to delete user', 'error');
             }
         }
     };

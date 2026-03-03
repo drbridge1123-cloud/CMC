@@ -15,7 +15,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET' && isset($_GET['case_id'])) {
     $caseId = (int)$_GET['case_id'];
     $files = dbFetchAll(
-        "SELECT f.*, u.full_name AS uploaded_by_name
+        "SELECT f.*, COALESCE(u.display_name, u.full_name) AS uploaded_by_name
          FROM traffic_case_files f
          LEFT JOIN users u ON f.uploaded_by = u.id
          WHERE f.case_id = ?

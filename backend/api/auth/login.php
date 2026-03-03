@@ -33,6 +33,7 @@ successResponse([
     'id' => $user['id'],
     'username' => $user['username'],
     'full_name' => $user['full_name'],
+    'display_name' => $user['display_name'] ?: $user['full_name'],
     'role' => $user['role'],
     'permissions' => $_SESSION['user_permissions'],
     'commission_rate' => (float)$user['commission_rate'],

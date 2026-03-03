@@ -109,7 +109,7 @@
                 <select x-model="staffFilter" @change="loadData(1)" class="sp-select">
                     <option value="">All Staff</option>
                     <template x-for="s in staffList" :key="s.id">
-                        <option :value="s.id" x-text="s.full_name"></option>
+                        <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                     </template>
                 </select>
                 <button @click="resetFilters()" class="sp-btn" x-show="hasActiveFilters()">Reset</button>

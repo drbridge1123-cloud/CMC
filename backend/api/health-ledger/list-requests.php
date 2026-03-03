@@ -13,7 +13,7 @@ $item = dbFetchOne("SELECT id FROM health_ledger_items WHERE id = ?", [$itemId])
 if (!$item) errorResponse('Health ledger item not found', 404);
 
 $rows = dbFetchAll("
-    SELECT hr.*, u.full_name AS created_by_name
+    SELECT hr.*, COALESCE(u.display_name, u.full_name) AS created_by_name
     FROM hl_requests hr
     LEFT JOIN users u ON u.id = hr.created_by
     WHERE hr.item_id = ?

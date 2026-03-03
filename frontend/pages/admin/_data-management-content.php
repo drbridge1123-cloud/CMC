@@ -5,13 +5,6 @@
 </style>
 
 <div x-data="dataManagementPage()" x-init="init()">
-    <!-- Page header row -->
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <div>
-            <div class="sp-eyebrow">Admin</div>
-            <h1 class="sp-title" style="font-size:16px;">Data Management</h1>
-        </div>
-    </div>
 
     <!-- ═══ Main Card ═══ -->
     <div class="sp-card">
@@ -34,7 +27,7 @@
                             <select x-model="filters.cases.staff" class="dm-filter">
                                 <option value="">All Staff</option>
                                 <template x-for="s in staffList" :key="s.id">
-                                    <option :value="s.id" x-text="s.full_name || s.display_name"></option>
+                                    <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                                 </template>
                             </select>
                         </div>
@@ -66,7 +59,7 @@
                             <select x-model="filters.commissions.staff" class="dm-filter">
                                 <option value="">All Staff</option>
                                 <template x-for="s in staffList" :key="s.id">
-                                    <option :value="s.id" x-text="s.full_name || s.display_name"></option>
+                                    <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                                 </template>
                             </select>
                         </div>
@@ -83,11 +76,17 @@
                             <select x-model="filters.attorneyCases.staff" class="dm-filter">
                                 <option value="">All Attorneys</option>
                                 <template x-for="s in staffList" :key="s.id">
-                                    <option :value="s.id" x-text="s.full_name || s.display_name"></option>
+                                    <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                                 </template>
                             </select>
                         </div>
-                        <button @click="exportAttorneyCases()" class="sp-new-btn-navy" style="font-size:11px; padding:5px 12px;">↓ Export CSV</button>
+                        <div style="display:flex; gap:6px;">
+                            <button @click="exportAttorneyCases()" class="sp-new-btn-navy" style="font-size:11px; padding:5px 12px;">↓ Export CSV</button>
+                            <label class="sp-new-btn-navy" style="font-size:11px; padding:5px 12px; cursor:pointer; background:#fafaf8; color:#1a2535; border:1px solid #c9c4b8;">
+                                ↑ Import CSV
+                                <input type="file" accept=".csv" @change="importAttorneyCases($event)" hidden>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Referrals -->
@@ -100,7 +99,7 @@
                             <select x-model="filters.referrals.staff" class="dm-filter">
                                 <option value="">All Leads</option>
                                 <template x-for="s in staffList" :key="s.id">
-                                    <option :value="s.id" x-text="s.full_name || s.display_name"></option>
+                                    <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                                 </template>
                             </select>
                         </div>
@@ -116,7 +115,7 @@
                             <select x-model="filters.expenseReport.staff" class="dm-filter">
                                 <option value="">All Staff</option>
                                 <template x-for="s in staffList" :key="s.id">
-                                    <option :value="s.id" x-text="s.full_name || s.display_name"></option>
+                                    <option :value="s.id" x-text="s.display_name || s.full_name"></option>
                                 </template>
                             </select>
                         </div>
@@ -172,7 +171,7 @@
                         </label>
                     </div>
 
-                    <!-- MBDS Report Import -->
+                    <!-- MBR Report Import -->
                     <div style="background:#fafaf8; border:1px solid #e8e4dc; border-radius:10px; padding:16px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                             <div style="font-size:13px; font-weight:600; color:#1a2535;">Medical Balance Report</div>
@@ -180,7 +179,7 @@
                         <div style="font-size:11px; color:#9ca3af; margin-bottom:8px;">Requires case #. Columns: provider, charges, PIP paid, balance</div>
                         <label class="sp-new-btn-navy" style="font-size:11px; padding:5px 12px; cursor:pointer; display:inline-block;">
                             ↑ Import CSV
-                            <input type="file" accept=".csv" @change="importMbdsReport($event)" style="display:none;">
+                            <input type="file" accept=".csv" @change="importMbrReport($event)" style="display:none;">
                         </label>
                     </div>
 

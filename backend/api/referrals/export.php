@@ -32,8 +32,8 @@ $rows = dbFetchAll(
     "SELECT r.row_number, r.signed_date, r.file_number, r.client_name,
             r.status, r.date_of_loss, r.referred_by,
             r.referred_to_provider, r.referred_to_body_shop,
-            ld.full_name AS lead_name,
-            cm.full_name AS case_manager_name,
+            COALESCE(ld.display_name, ld.full_name) AS lead_name,
+            COALESCE(cm.display_name, cm.full_name) AS case_manager_name,
             r.remark
      FROM referral_entries r
      LEFT JOIN users ld ON r.lead_id = ld.id

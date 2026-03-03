@@ -59,7 +59,7 @@
                     <select x-model="managerFilter" @change="loadReferrals()" class="sp-select">
                         <option value="">All Managers</option>
                         <template x-for="u in users" :key="u.id">
-                            <option :value="u.id" x-text="u.full_name"></option>
+                            <option :value="u.id" x-text="u.display_name || u.full_name"></option>
                         </template>
                     </select>
                 </template>

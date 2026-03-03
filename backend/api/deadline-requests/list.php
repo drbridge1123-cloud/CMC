@@ -23,7 +23,7 @@ if ($status && $status !== 'all') {
 }
 
 $rows = dbFetchAll("
-    SELECT dr.*, u.full_name AS requested_by_name, r.full_name AS reviewed_by_name,
+    SELECT dr.*, COALESCE(u.display_name, u.full_name) AS requested_by_name, COALESCE(r.display_name, r.full_name) AS reviewed_by_name,
            ac.case_number, ac.client_name
     FROM deadline_extension_requests dr
     JOIN users u ON dr.user_id = u.id

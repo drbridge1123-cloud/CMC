@@ -11,10 +11,10 @@ if (!$caseId) errorResponse('case_id is required');
 
 $rows = dbFetchAll(
     "SELECT pn.*,
-            ml.balance AS mbds_balance,
-            ml.charges AS mbds_charges
+            ml.balance AS mbr_balance,
+            ml.charges AS mbr_charges
      FROM provider_negotiations pn
-     LEFT JOIN mbds_lines ml ON pn.mbds_line_id = ml.id
+     LEFT JOIN mbr_lines ml ON pn.mbr_line_id = ml.id
      WHERE pn.case_id = ?
      ORDER BY pn.provider_name ASC",
     [$caseId]
@@ -26,8 +26,8 @@ foreach ($rows as &$r) {
     $r['requested_reduction'] = $r['requested_reduction'] !== null ? (float)$r['requested_reduction'] : null;
     $r['accepted_amount']     = $r['accepted_amount'] !== null ? (float)$r['accepted_amount'] : null;
     $r['reduction_percent']   = $r['reduction_percent'] !== null ? (float)$r['reduction_percent'] : null;
-    $r['mbds_balance']        = $r['mbds_balance'] !== null ? (float)$r['mbds_balance'] : null;
-    $r['mbds_charges']        = $r['mbds_charges'] !== null ? (float)$r['mbds_charges'] : null;
+    $r['mbr_balance']        = $r['mbr_balance'] !== null ? (float)$r['mbr_balance'] : null;
+    $r['mbr_charges']        = $r['mbr_charges'] !== null ? (float)$r['mbr_charges'] : null;
 }
 unset($r);
 

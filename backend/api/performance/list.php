@@ -22,7 +22,7 @@ if (!in_array($user['role'], ['admin', 'manager'])) {
 }
 
 $snapshots = dbFetchAll("
-    SELECT p.*, u.full_name AS employee_name
+    SELECT p.*, COALESCE(u.display_name, u.full_name) AS employee_name
     FROM performance_snapshots p
     JOIN users u ON p.employee_id = u.id
     WHERE {$where}
