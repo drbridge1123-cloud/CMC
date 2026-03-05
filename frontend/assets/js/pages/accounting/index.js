@@ -4,7 +4,7 @@ function accountingTrackerPage() {
         ...listPageBase('accounting/list', {
             defaultSort: 'sent_to_accounting_date',
             defaultDir: 'asc',
-            perPage: 99999,
+            perPage: 50,
             filtersToParams() {
                 return {
                     filter: this.activeFilter,
@@ -77,8 +77,7 @@ function accountingTrackerPage() {
         async loadStaff() {
             const acctNames = ['chloe', 'daniel'];
             try {
-                const res = await api.get('users?active_only=1');
-                const all = res.data || [];
+                const all = await Alpine.store('staff').getList();
                 this.staffList = all.filter(u => {
                     const name = (u.display_name || u.full_name || '').toLowerCase();
                     return acctNames.some(n => name.includes(n));

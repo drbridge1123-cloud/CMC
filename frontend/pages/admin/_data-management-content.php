@@ -4,7 +4,7 @@
     .dm-filter { font-size:11px; padding:4px 6px; border:1px solid #d1cdc4; border-radius:5px; background:#fff; color:#1a2535; max-width:130px; }
 </style>
 
-<div x-data="dataManagementPage()" x-init="init()">
+<div x-data="dataManagementPage()">
 
     <!-- ═══ Main Card ═══ -->
     <div class="sp-card">

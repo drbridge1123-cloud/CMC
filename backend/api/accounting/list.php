@@ -84,23 +84,38 @@ $attSql = "SELECT ac.case_id AS id, ac.id AS attorney_case_id, 'attorney' AS sou
            WHERE {$attWhere}";
 
 // Combine with UNION ALL
-$sql = "({$caseSql}) UNION ALL ({$attSql})";
+$unionSql = "({$caseSql}) UNION ALL ({$attSql})";
 $params = array_merge($caseParams, $attParams);
 
-// Sorting (applied to combined results)
+// Quick filters (applied as WHERE on combined results)
+$outerWhere = '1=1';
+if ($filter === 'overdue') {
+    $outerWhere .= " AND days_in_accounting > " . ACCOUNTING_DISBURSE_DAYS;
+} elseif ($filter === 'pending') {
+    $outerWhere .= " AND (pending_count > 0 OR COALESCE(disbursement_count, 0) = 0)";
+}
+
+// Sorting
 $orderCol = $sortBy;
 if ($sortBy === 'assigned_name') $orderCol = 'assigned_name';
 elseif ($sortBy === 'settlement_amount') $orderCol = 'COALESCE(settlement_amount, 0)';
-$sql = "SELECT * FROM ({$sql}) AS combined ORDER BY {$orderCol} {$sortDir}";
 
-$items = dbFetchAll($sql, $params);
+// Summary stats (across all filtered results, not just current page)
+$summaryRow = dbFetchOne(
+    "SELECT COUNT(*) AS total,
+            SUM(CASE WHEN days_in_accounting > " . ACCOUNTING_DISBURSE_DAYS . " THEN 1 ELSE 0 END) AS overdue,
+            SUM(CASE WHEN pending_count > 0 OR COALESCE(disbursement_count, 0) = 0 THEN 1 ELSE 0 END) AS pending,
+            COALESCE(SUM(COALESCE(settlement_amount, 0)), 0) AS total_settlement
+     FROM ({$unionSql}) AS s_combined WHERE {$outerWhere}",
+    $params
+);
 
-// Quick filters (applied post-query)
-if ($filter === 'overdue') {
-    $items = array_values(array_filter($items, fn($i) => (int)$i['days_in_accounting'] > ACCOUNTING_DISBURSE_DAYS));
-} elseif ($filter === 'pending') {
-    $items = array_values(array_filter($items, fn($i) => (int)($i['pending_count'] ?? 0) > 0 || (int)($i['disbursement_count'] ?? 0) === 0));
-}
+// Paginated data query
+[$page, $perPage, $offset] = getPaginationParams();
+$total = (int)$summaryRow['total'];
+
+$sql = "SELECT * FROM ({$unionSql}) AS combined WHERE {$outerWhere} ORDER BY {$orderCol} {$sortDir} LIMIT ? OFFSET ?";
+$items = dbFetchAll($sql, array_merge($params, [$perPage, $offset]));
 
 // Compute flags
 foreach ($items as &$item) {
@@ -112,8 +127,7 @@ foreach ($items as &$item) {
     $item['settlement_amount'] = (float)($item['settlement_amount'] ?? 0);
 
     if ($item['source_type'] === 'attorney') {
-        // For attorney cases, attorney_fee is discounted_legal_fee (already in settlement data)
-        $item['attorney_fee'] = 0; // Disbursements already include attorney fee
+        $item['attorney_fee'] = 0;
     } else {
         $item['attorney_fee'] = round($item['settlement_amount'] * (float)($item['attorney_fee_percent'] ?? 0.3333), 2);
     }
@@ -121,22 +135,11 @@ foreach ($items as &$item) {
 }
 unset($item);
 
-// Summary stats
-$summaryTotal = count($items);
-$overdue = 0; $pending = 0; $totalSettlement = 0;
-foreach ($items as $item) {
-    if ($item['is_overdue']) $overdue++;
-    if ($item['pending_count'] > 0 || $item['disbursement_count'] === 0) $pending++;
-    $totalSettlement += $item['settlement_amount'];
-}
-
-jsonResponse([
-    'success' => true,
-    'data' => $items,
+paginatedResponse($items, $total, $page, $perPage, [
     'summary' => [
-        'total' => $summaryTotal,
-        'overdue' => $overdue,
-        'pending' => $pending,
-        'total_settlement' => round($totalSettlement, 2),
+        'total' => $total,
+        'overdue' => (int)($summaryRow['overdue'] ?? 0),
+        'pending' => (int)($summaryRow['pending'] ?? 0),
+        'total_settlement' => round((float)$summaryRow['total_settlement'], 2),
     ]
 ]);

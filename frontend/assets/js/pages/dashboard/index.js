@@ -83,10 +83,6 @@ function dashboardPage() {
             } catch (e) {}
         },
 
-        formatCurrency(val) {
-            return '$' + parseFloat(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        },
-
         formatDate(dateStr) {
             if (!dateStr) return '-';
             const d = new Date(dateStr);

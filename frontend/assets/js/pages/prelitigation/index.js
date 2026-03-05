@@ -4,7 +4,7 @@ function prelitTrackerPage() {
         ...listPageBase('prelitigation/list', {
             defaultSort: 'next_followup_date',
             defaultDir: 'asc',
-            perPage: 99999,
+            perPage: 50,
             filtersToParams() {
                 return {
                     filter: this.activeFilter,
@@ -64,8 +64,7 @@ function prelitTrackerPage() {
         async loadStaff() {
             const prelitNames = ['dave', 'soyong', 'chloe', 'jimi', 'daniel'];
             try {
-                const res = await api.get('users?active_only=1');
-                const all = res.data || [];
+                const all = await Alpine.store('staff').getList();
                 const filtered = all.filter(u => {
                     const name = (u.display_name || u.full_name || '').toLowerCase();
                     return prelitNames.some(n => name.includes(n));

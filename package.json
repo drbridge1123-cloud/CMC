@@ -1,0 +1,12 @@
+{
+  "name": "cmcdemo",
+  "private": true,
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./frontend/assets/css/tailwind-input.css -o ./frontend/assets/css/tailwind.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./frontend/assets/css/tailwind-input.css -o ./frontend/assets/css/tailwind.css --watch",
+    "build:standalone": "./tailwindcss.exe -i ./frontend/assets/css/tailwind-input.css -o ./frontend/assets/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2"
+  }
+}

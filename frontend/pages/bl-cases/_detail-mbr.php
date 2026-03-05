@@ -1,5 +1,5 @@
             <!-- MBR Report Section -->
-            <div class="mbr-panel c1-section" data-panel x-data="mbrPanel(caseId)" x-init="init()">
+            <div class="mbr-panel c1-section" data-panel x-data="mbrPanel(caseId)">
 
                 <!-- Report Header Bar -->
                 <div class="mbr-header c1-section-header" :class="mbrOpen && 'is-open'" @click="mbrOpen = !mbrOpen; if(mbrOpen) $nextTick(() => $el.closest('[data-panel]').scrollIntoView({behavior:'smooth',block:'start'}))">

@@ -44,37 +44,38 @@ $updateData = [
 if ($linkedCaseId) {
     $updateData['case_id'] = $linkedCaseId;
 }
-dbUpdate('attorney_cases', $updateData, 'id = ?', [$caseId]);
-
 // ── Auto-generate disbursement items from main case settlement data ──
-
 $disbursementItems = $mainCase ? buildDisbursementItems($linkedCaseId, $mainCase) : [];
 
-foreach ($disbursementItems as $item) {
-    dbInsert('accounting_disbursements', [
-        'attorney_case_id' => $caseId,
-        'disbursement_type' => $item['type'],
-        'payee_name' => $item['payee'],
-        'amount' => $item['amount'],
-        'status' => 'pending',
-        'created_by' => $userId,
+dbTransaction(function() use ($updateData, $caseId, $disbursementItems, $userId, $assignedTo, $attCase, $note, $linkedCaseId) {
+    dbUpdate('attorney_cases', $updateData, 'id = ?', [$caseId]);
+
+    foreach ($disbursementItems as $item) {
+        dbInsert('accounting_disbursements', [
+            'attorney_case_id' => $caseId,
+            'disbursement_type' => $item['type'],
+            'payee_name' => $item['payee'],
+            'amount' => $item['amount'],
+            'status' => 'pending',
+            'created_by' => $userId,
+        ]);
+    }
+
+    // Notification
+    dbInsert('notifications', [
+        'user_id' => $assignedTo,
+        'type' => 'status_change',
+        'message' => "Attorney case {$attCase['case_number']} ({$attCase['client_name']}) sent to accounting" . ($note ? ": {$note}" : ''),
     ]);
-}
 
-// Notification
-dbInsert('notifications', [
-    'user_id' => $assignedTo,
-    'type' => 'status_change',
-    'message' => "Attorney case {$attCase['case_number']} ({$attCase['client_name']}) sent to accounting" . ($note ? ": {$note}" : ''),
-]);
-
-// Activity log
-logActivity($userId, 'send_to_accounting', 'attorney_case', $caseId, [
-    'linked_case_id' => $linkedCaseId,
-    'assigned_to' => $assignedTo,
-    'disbursement_count' => count($disbursementItems),
-    'note' => $note,
-]);
+    // Activity log
+    logActivity($userId, 'send_to_accounting', 'attorney_case', $caseId, [
+        'linked_case_id' => $linkedCaseId,
+        'assigned_to' => $assignedTo,
+        'disbursement_count' => count($disbursementItems),
+        'note' => $note,
+    ]);
+});
 
 successResponse([
     'disbursement_count' => count($disbursementItems),

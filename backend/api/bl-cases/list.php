@@ -57,19 +57,31 @@ $orderClause = $sortBy === 'assigned_name'
 
 $sql = "SELECT c.*,
             COALESCE(u.display_name, u.full_name) AS assigned_name,
-            (SELECT COUNT(*) FROM case_providers cp WHERE cp.case_id = c.id) AS provider_total,
-            (SELECT COUNT(*) FROM case_providers cp WHERE cp.case_id = c.id AND cp.overall_status = 'verified') AS provider_done,
-            (SELECT COUNT(*) FROM case_providers cp WHERE cp.case_id = c.id AND cp.deadline IS NOT NULL AND cp.deadline < CURDATE() AND cp.overall_status NOT IN ('received_complete','verified')) AS provider_overdue,
-            (SELECT COUNT(*) FROM case_providers cp
-                JOIN record_requests rr ON rr.case_provider_id = cp.id
-                WHERE cp.case_id = c.id
-                AND rr.next_followup_date IS NOT NULL
-                AND rr.next_followup_date <= CURDATE()
-                AND cp.overall_status NOT IN ('received_complete','verified')
-                AND rr.id = (SELECT MAX(rr2.id) FROM record_requests rr2 WHERE rr2.case_provider_id = cp.id)
-            ) AS provider_followup
+            COALESCE(pstats.provider_total, 0) AS provider_total,
+            COALESCE(pstats.provider_done, 0) AS provider_done,
+            COALESCE(pstats.provider_overdue, 0) AS provider_overdue,
+            COALESCE(pstats.provider_followup, 0) AS provider_followup
         FROM cases c
         LEFT JOIN users u ON c.assigned_to = u.id
+        LEFT JOIN (
+            SELECT cp.case_id,
+                COUNT(*) AS provider_total,
+                SUM(cp.overall_status = 'verified') AS provider_done,
+                SUM(cp.deadline IS NOT NULL AND cp.deadline < CURDATE()
+                    AND cp.overall_status NOT IN ('received_complete','verified')) AS provider_overdue,
+                SUM(lr.next_followup_date IS NOT NULL AND lr.next_followup_date <= CURDATE()
+                    AND cp.overall_status NOT IN ('received_complete','verified')) AS provider_followup
+            FROM case_providers cp
+            LEFT JOIN (
+                SELECT rr.case_provider_id, rr.next_followup_date
+                FROM record_requests rr
+                INNER JOIN (
+                    SELECT case_provider_id, MAX(id) AS max_id
+                    FROM record_requests GROUP BY case_provider_id
+                ) rm ON rr.id = rm.max_id
+            ) lr ON lr.case_provider_id = cp.id
+            GROUP BY cp.case_id
+        ) pstats ON pstats.case_id = c.id
         WHERE {$where}
         ORDER BY {$orderClause}
         LIMIT ? OFFSET ?";

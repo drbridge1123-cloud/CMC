@@ -51,12 +51,14 @@ if ($hasCommission) {
     $uimCommission = 0;
 }
 
-dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
+dbTransaction(function() use ($data, $caseId, $userId, $settled, $uimCommission) {
+    dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
 
-logActivity($userId, 'settle_uim', 'attorney_case', $caseId, [
-    'uim_settled' => $settled,
-    'uim_commission' => $uimCommission
-]);
+    logActivity($userId, 'settle_uim', 'attorney_case', $caseId, [
+        'uim_settled' => $settled,
+        'uim_commission' => $uimCommission,
+    ]);
+});
 
 $totalCommission = (float)$case['commission'] + $uimCommission;
 

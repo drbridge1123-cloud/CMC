@@ -70,3 +70,16 @@ function logActivity($userId, $action, $entityType, $entityId = null, $details =
         'details' => $details ? json_encode($details) : null
     ]);
 }
+
+function dbTransaction(callable $callback) {
+    $pdo = getDBConnection();
+    $pdo->beginTransaction();
+    try {
+        $result = $callback($pdo);
+        $pdo->commit();
+        return $result;
+    } catch (\Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}

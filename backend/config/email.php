@@ -1,20 +1,20 @@
 <?php
 // SMTP Configuration (Gmail)
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'bridgelawpllc@gmail.com');
-define('SMTP_PASSWORD', 'lduq heqy sjff fxir');
-define('SMTP_ENCRYPTION', 'tls');               // STARTTLS
-define('SMTP_FROM_EMAIL', 'bridgelawpllc@gmail.com');
-define('SMTP_FROM_NAME', 'Bridge Law & Associates - Records Department');
+define('SMTP_HOST', $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com');
+define('SMTP_PORT', (int)($_ENV['SMTP_PORT'] ?? 587));
+define('SMTP_USERNAME', $_ENV['SMTP_USERNAME'] ?? 'bridgelawpllc@gmail.com');
+define('SMTP_PASSWORD', $_ENV['SMTP_PASSWORD'] ?? '');
+define('SMTP_ENCRYPTION', $_ENV['SMTP_ENCRYPTION'] ?? 'tls');
+define('SMTP_FROM_EMAIL', $_ENV['SMTP_FROM_EMAIL'] ?? 'bridgelawpllc@gmail.com');
+define('SMTP_FROM_NAME', $_ENV['SMTP_FROM_NAME'] ?? 'Bridge Law & Associates - Records Department');
 
 // eFax Configuration (Faxage)
 define('FAX_SERVICE', 'faxage');
-define('FAXAGE_USERNAME', 'Bridgelaw');
-define('FAXAGE_COMPANY', '123107');
-define('FAXAGE_PASSWORD', 'FDbtldk33#');
-define('FAXAGE_API_URL', 'https://www.faxage.com/httpsfax.php');
-define('FAX_CALLER_ID', '+14255820819');        // Firm's fax number (E.164 format)
+define('FAXAGE_USERNAME', $_ENV['FAXAGE_USERNAME'] ?? 'Bridgelaw');
+define('FAXAGE_COMPANY', $_ENV['FAXAGE_COMPANY'] ?? '123107');
+define('FAXAGE_PASSWORD', $_ENV['FAXAGE_PASSWORD'] ?? '');
+define('FAXAGE_API_URL', $_ENV['FAXAGE_API_URL'] ?? 'https://www.faxage.com/httpsfax.php');
+define('FAX_CALLER_ID', $_ENV['FAX_CALLER_ID'] ?? '+14255820819');
 
 // Legacy Phaxio (kept for reference, not active)
 define('FAX_API_KEY', '');

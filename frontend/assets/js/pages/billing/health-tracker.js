@@ -95,8 +95,7 @@ function healthLedgerPage() {
 
         async loadStaff() {
             try {
-                const r = await api.get('users?active_only=1');
-                this.staffList = r.data || [];
+                this.staffList = await Alpine.store('staff').getList();
             } catch(e) {}
         },
 

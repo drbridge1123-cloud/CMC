@@ -1,16 +1,6 @@
     <style>
-    /* ── Log Receipt Modal ── */
-    .rcm { width: 560px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); overflow: hidden; background: #fff; }
-    .rcm-header { background: #0F1B2D; padding: 18px 24px 16px; display: flex; align-items: flex-start; justify-content: space-between; }
-    .rcm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
-    .rcm-header .rcm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
-    .rcm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; margin-top: 2px; }
-    .rcm-close:hover { color: rgba(255,255,255,.75); }
-    .rcm-body { padding: 24px; display: flex; flex-direction: column; gap: 18px; max-height: 70vh; overflow-y: auto; }
-    .rcm-body::-webkit-scrollbar { width: 4px; }
-    .rcm-body::-webkit-scrollbar-track { background: transparent; }
-    .rcm-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-    .rcm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    /* ── Log Receipt Modal (unique styles) ── */
+    .rcm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
     .rcm-req { color: var(--gold, #C9A84C); }
     .rcm-input, .rcm-select {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 6px;
@@ -35,9 +25,6 @@
         border-color: var(--gold, #C9A84C); background: #fff;
         box-shadow: 0 0 0 3px rgba(201,168,76,.1);
     }
-    .rcm-section { display: flex; align-items: center; gap: 10px; margin: 0; }
-    .rcm-section::before, .rcm-section::after { content: ''; flex: 1; height: 1px; background: var(--border, #d0cdc5); }
-    .rcm-section span { font-size: 9px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
     .rcm-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .rcm-item-card {
         display: flex; align-items: center; gap: 9px; cursor: pointer;
@@ -78,8 +65,7 @@
     .rcm-norecord-panel .rcm-select:focus { border-color: #f87171; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
     .rcm-norecord-panel .rcm-textarea { border-color: #FECACA; }
     .rcm-norecord-panel .rcm-textarea:focus { border-color: #f87171; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
-    .rcm-norecord-panel .rcm-label { color: #991B1B; }
-    .rcm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: space-between; align-items: center; }
+    .rcm-norecord-panel .sp-form-label { color: #991B1B; }
     .rcm-btn-hold {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 6px 14px; cursor: pointer; transition: all .15s;
@@ -106,24 +92,24 @@
     </style>
 
     <!-- Receipt Modal -->
-    <div x-show="showReceiptModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showReceiptModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showReceiptModal && (showReceiptModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showReceiptModal = false"></div>
-        <form @submit.prevent="submitReceipt()" class="rcm relative z-10" @click.stop>
+        <div class="fixed inset-0" @click="showReceiptModal = false"></div>
+        <form @submit.prevent="submitReceipt()" class="sp-modal-box relative z-10" @click.stop>
 
             <!-- Header -->
-            <div class="rcm-header">
+            <div class="sp-modal-header">
                 <div>
-                    <h3>Log Receipt</h3>
+                    <h3 class="sp-modal-title">Log Receipt</h3>
                     <div class="rcm-subtitle" x-text="currentProvider?.provider_name"></div>
                 </div>
-                <button type="button" class="rcm-close" @click="showReceiptModal = false">
+                <button type="button" class="sp-modal-close" @click="showReceiptModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <!-- Body -->
-            <div class="rcm-body">
+            <div class="sp-modal-body">
 
                 <!-- No Records Panel (shown when toggled) -->
                 <div x-show="newReceipt.no_records" x-transition class="rcm-norecord-panel">
@@ -132,7 +118,7 @@
                         No Records Available
                     </label>
                     <div>
-                        <label class="rcm-label">Reason <span class="rcm-req">*</span></label>
+                        <label class="sp-form-label">Reason <span class="rcm-req">*</span></label>
                         <select x-model="newReceipt.no_records_reason" class="rcm-select">
                             <option value="">Select reason...</option>
                             <option value="no_treatment">No treatment records for this period</option>
@@ -143,7 +129,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="rcm-label">Details</label>
+                        <label class="sp-form-label">Details</label>
                         <textarea x-model="newReceipt.no_records_detail" rows="2" class="rcm-textarea"
                             placeholder="Additional details (who confirmed, date, etc.)..."></textarea>
                     </div>
@@ -154,13 +140,13 @@
                     <div style="display:flex; flex-direction:column; gap:18px;">
 
                         <!-- Date + Method -->
-                        <div style="display:flex; gap:12px;">
-                            <div style="flex:2;">
-                                <label class="rcm-label">Received Date <span class="rcm-req">*</span></label>
+                        <div class="sp-form-grid-2">
+                            <div>
+                                <label class="sp-form-label">Received Date <span class="rcm-req">*</span></label>
                                 <input type="date" x-model="newReceipt.received_date" required class="rcm-input rcm-mono">
                             </div>
-                            <div style="flex:1;">
-                                <label class="rcm-label">Method <span class="rcm-req">*</span></label>
+                            <div>
+                                <label class="sp-form-label">Method <span class="rcm-req">*</span></label>
                                 <select x-model="newReceipt.received_method" required class="rcm-select">
                                     <option value="fax">Fax</option>
                                     <option value="email">Email</option>
@@ -172,7 +158,7 @@
                         </div>
 
                         <!-- Received Items -->
-                        <div class="rcm-section"><span>Received Items</span></div>
+                        <div class="sp-form-section">Received Items</div>
                         <div class="rcm-item-grid">
                             <label class="rcm-item-card" :class="{ checked: newReceipt.has_medical_records }">
                                 <input type="checkbox" x-model="newReceipt.has_medical_records"> Medical Records
@@ -196,13 +182,13 @@
 
                         <!-- Incomplete reason -->
                         <div x-show="!newReceipt.is_complete" x-transition>
-                            <label class="rcm-label">Incomplete Reason</label>
+                            <label class="sp-form-label">Incomplete Reason</label>
                             <textarea x-model="newReceipt.incomplete_reason" rows="2" class="rcm-textarea" placeholder="Describe what's missing..."></textarea>
                         </div>
 
                         <!-- File Location -->
                         <div>
-                            <label class="rcm-label">File Location (SharePoint Path)</label>
+                            <label class="sp-form-label">File Location (SharePoint Path)</label>
                             <div class="rcm-file-wrap">
                                 <span class="rcm-file-icon">📁</span>
                                 <input type="text" x-model="newReceipt.file_location" class="rcm-input" placeholder="\\sharepoint\cases\...">
@@ -220,7 +206,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="rcm-footer">
+            <div class="sp-modal-footer" style="justify-content:space-between; align-items:center;">
                 <div>
                     <button x-show="!newReceipt.no_records" type="button" @click="setProviderOnHold()" :disabled="saving" class="rcm-btn-hold">
                         <span class="rcm-hold-icon">⏸</span>

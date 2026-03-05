@@ -1,4 +1,4 @@
-<div x-data="caseDetailPage()" x-init="init()">
+<div x-data="caseDetailPage()">
 
     <!-- Loading -->
     <template x-if="loading">

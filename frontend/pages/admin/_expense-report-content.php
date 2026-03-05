@@ -1,6 +1,6 @@
 <!-- All sp- styles loaded from shared sp-design-system.css -->
 
-<div x-data="expenseReportPage()" x-init="init()">
+<div x-data="expenseReportPage()">
 
     <!-- ═══ Unified Card ═══ -->
     <div class="sp-card">

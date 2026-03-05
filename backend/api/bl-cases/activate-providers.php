@@ -41,48 +41,55 @@ $deadline = calculateDeadline();
 $notes = isset($input['notes']) ? trim($input['notes']) : null;
 $activatedCount = 0;
 
-foreach ($providers as $prov) {
-    $updateData = [
-        'overall_status'    => 'not_started',
-        'assigned_to'       => $assignedTo,
-        'assignment_status' => 'pending',
-        'activated_by'      => $userId,
-        'deadline'          => $deadline,
-        'request_mr'        => !empty($input['request_mr']) ? 1 : 0,
-        'request_bill'      => !empty($input['request_bill']) ? 1 : 0,
-        'request_chart'     => !empty($input['request_chart']) ? 1 : 0,
-        'request_img'       => !empty($input['request_img']) ? 1 : 0,
-        'request_op'        => !empty($input['request_op']) ? 1 : 0,
-    ];
-    if ($notes !== null) {
-        $updateData['notes'] = $notes;
+$currentUser = dbFetchOne("SELECT COALESCE(display_name, full_name) AS full_name FROM users WHERE id = ?", [$userId]);
+
+$activatedCount = dbTransaction(function() use ($providers, $input, $userId, $assignedTo, $deadline, $notes, $currentUser, $case, $caseId) {
+    $activatedCount = 0;
+
+    foreach ($providers as $prov) {
+        $updateData = [
+            'overall_status'    => 'not_started',
+            'assigned_to'       => $assignedTo,
+            'assignment_status' => 'pending',
+            'activated_by'      => $userId,
+            'deadline'          => $deadline,
+            'request_mr'        => !empty($input['request_mr']) ? 1 : 0,
+            'request_bill'      => !empty($input['request_bill']) ? 1 : 0,
+            'request_chart'     => !empty($input['request_chart']) ? 1 : 0,
+            'request_img'       => !empty($input['request_img']) ? 1 : 0,
+            'request_op'        => !empty($input['request_op']) ? 1 : 0,
+        ];
+        if ($notes !== null) {
+            $updateData['notes'] = $notes;
+        }
+
+        dbUpdate('case_providers', $updateData, 'id = ?', [$prov['id']]);
+        $activatedCount++;
     }
 
-    dbUpdate('case_providers', $updateData, 'id = ?', [$prov['id']]);
-    $activatedCount++;
-}
+    // Create notification for the assigned billing staff
+    dbInsert('notifications', [
+        'user_id' => $assignedTo,
+        'type'    => 'billing_assignment',
+        'message' => "{$currentUser['full_name']} assigned {$activatedCount} provider(s) from case {$case['case_number']} ({$case['client_name']}) for billing. Please accept.",
+        'is_read' => 0,
+    ]);
 
-// Create notification for the assigned billing staff
-$currentUser = dbFetchOne("SELECT COALESCE(display_name, full_name) AS full_name FROM users WHERE id = ?", [$userId]);
-dbInsert('notifications', [
-    'user_id' => $assignedTo,
-    'type'    => 'billing_assignment',
-    'message' => "{$currentUser['full_name']} assigned {$activatedCount} provider(s) from case {$case['case_number']} ({$case['client_name']}) for billing. Please accept.",
-    'is_read' => 0,
-]);
+    // Only mark treating completed if no treating/treatment_complete providers remain
+    $remainingTreating = dbFetchOne(
+        "SELECT COUNT(*) AS cnt FROM case_providers WHERE case_id = ? AND overall_status IN ('treating', 'treatment_complete')",
+        [$caseId]
+    );
+    if ((int)$remainingTreating['cnt'] === 0) {
+        dbUpdate('cases', ['ini_completed' => 1], 'id = ?', [$caseId]);
+    }
 
-// Only mark treating completed if no treating/treatment_complete providers remain
-$remainingTreating = dbFetchOne(
-    "SELECT COUNT(*) AS cnt FROM case_providers WHERE case_id = ? AND overall_status IN ('treating', 'treatment_complete')",
-    [$caseId]
-);
-if ((int)$remainingTreating['cnt'] === 0) {
-    dbUpdate('cases', ['ini_completed' => 1], 'id = ?', [$caseId]);
-}
+    logActivity($userId, 'activate_providers', 'case', $caseId, [
+        'activated_count' => $activatedCount,
+        'assigned_to'     => $assignedTo,
+    ]);
 
-logActivity($userId, 'activate_providers', 'case', $caseId, [
-    'activated_count' => $activatedCount,
-    'assigned_to'     => $assignedTo,
-]);
+    return $activatedCount;
+});
 
 successResponse(['activated' => $activatedCount], "{$activatedCount} provider(s) activated for billing");

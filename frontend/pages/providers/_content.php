@@ -296,7 +296,8 @@
         </div>
 
         <!-- ===================== PROVIDERS TAB ===================== -->
-        <div id="providers-tab" x-show="activeTab === 'providers'" x-data="providersListPage()" x-init="loadData()">
+        <template x-if="activeTab === 'providers'">
+        <div id="providers-tab" x-data="providersListPage()" x-init="loadData()">
 
             <!-- Toolbar Row -->
             <div style="padding:12px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
@@ -477,9 +478,11 @@
                 </form>
             </div></template>
         </div>
+        </template>
 
         <!-- ===================== INSURANCE TAB ===================== -->
-        <div x-show="activeTab === 'insurance'" x-cloak x-data="insuranceListPage()" x-init="loadData()">
+        <template x-if="activeTab === 'insurance'">
+        <div x-data="insuranceListPage()" x-init="loadData()">
 
             <!-- Toolbar Row -->
             <div style="padding:12px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
@@ -569,9 +572,11 @@
                 </form>
             </div></template>
         </div>
+        </template>
 
         <!-- ===================== ADJUSTERS TAB ===================== -->
-        <div x-show="activeTab === 'adjusters'" x-cloak x-data="adjustersListPage()" x-init="init()">
+        <template x-if="activeTab === 'adjusters'">
+        <div x-data="adjustersListPage()">
 
             <!-- Toolbar Row -->
             <div style="padding:12px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
@@ -693,9 +698,11 @@
                 </form>
             </div></template>
         </div>
+        </template>
 
         <!-- ===================== CLIENTS TAB ===================== -->
-        <div x-show="activeTab === 'clients'" x-cloak x-data="clientsListPage()" x-init="loadData()">
+        <template x-if="activeTab === 'clients'">
+        <div x-data="clientsListPage()" x-init="loadData()">
 
             <!-- Toolbar Row -->
             <div style="padding:12px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
@@ -781,6 +788,7 @@
                 </form>
             </div></template>
         </div>
+        </template>
 
     </div><!-- /sp-card -->
 

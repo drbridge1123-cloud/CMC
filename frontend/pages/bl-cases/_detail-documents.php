@@ -1,6 +1,6 @@
             <!-- Documents Section -->
             <div class="doc-panel c1-section c1-group-end" data-panel
-                x-data="{...documentUploader(caseId), docsOpen: false}" x-init="init()">
+                x-data="{...documentUploader(caseId), docsOpen: false}">
                 <div class="c1-section-header" :class="docsOpen && 'is-open'" @click="docsOpen = !docsOpen; if(docsOpen) $nextTick(() => $el.closest('[data-panel]').scrollIntoView({behavior:'smooth',block:'start'}))">
                     <div class="flex items-center gap-2.5">
                         <span class="c1-num c1-num-olive">04</span>

@@ -10,45 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/CMCdemo/frontend/assets/css/app.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/css/app.css') ?>">
     <link rel="stylesheet" href="/CMCdemo/frontend/assets/css/sp-design-system.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/css/sp-design-system.css') ?>">
-    <script>
-        // Suppress Tailwind CDN production warning
-        const _warn = console.warn;
-        console.warn = (...args) => {
-            const msg = args.join(' ');
-            if (msg.includes('cdn.tailwindcss.com') || msg.includes('Tailwind')) return;
-            _warn.apply(console, args);
-        };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        franklin: ['Libre Franklin', 'sans-serif'],
-                    },
-                    colors: {
-                        navy: {
-                            DEFAULT: '#0F1B2D',
-                            light: '#1A2A40',
-                            border: '#243347',
-                        },
-                        gold: {
-                            DEFAULT: '#C9A84C',
-                            hover: '#B8973F',
-                        },
-                        'v2-bg': '#FFFFFF',
-                        'v2-card': '#FFFFFF',
-                        'v2-card-border': '#E5E5E0',
-                        'v2-card-bg': '#F0F2F5',
-                        'v2-text': '#0F1B2D',
-                        'v2-text-mid': '#3D4F63',
-                        'v2-text-light': '#5A6B82',
-                    },
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="/CMCdemo/frontend/assets/css/tailwind.css?v=<?= file_exists($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/css/tailwind.css') ? filemtime($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/css/tailwind.css') : '0' ?>">
     <!-- Shared JS -->
     <script src="/CMCdemo/frontend/assets/js/app.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/js/app.js') ?>"></script>
     <script src="/CMCdemo/frontend/assets/js/utils.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/CMCdemo/frontend/assets/js/utils.js') ?>"></script>

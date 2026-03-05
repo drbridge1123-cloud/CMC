@@ -96,8 +96,7 @@ function trackerPage() {
             this.caseIdFilter = urlParams.get('case_id') || '';
 
             this.loadStaff();
-            this.loadBulkTemplates();
-            this.loadHlTemplates();
+            this.loadTemplates();
             await this.loadData(1);
 
             this.selectedItems = [];
@@ -106,8 +105,7 @@ function trackerPage() {
 
         async loadStaff() {
             try {
-                const res = await api.get('users?active_only=1');
-                const all = res.data || [];
+                const all = await Alpine.store('staff').getList();
                 const allowed = ['ella', 'miki', 'jimi'];
                 this.staffList = all.filter(u => {
                     const name = ((u.display_name || u.full_name) || '').toLowerCase();
@@ -116,20 +114,15 @@ function trackerPage() {
             } catch(e) { this.staffList = []; }
         },
 
-        async loadBulkTemplates() {
-            try {
-                const res = await api.get('templates?type=bulk_request&active_only=1');
-                this.bulkTemplates = res.data || [];
-                const def = this.bulkTemplates.find(t => t.is_default);
-                if (def) this.bulkRequestForm.template_id = def.id;
-            } catch(e) { this.bulkTemplates = []; }
-        },
-
-        async loadHlTemplates() {
+        async loadTemplates() {
             try {
                 const r = await api.get('templates?active_only=1');
-                this.hlTemplates = r.data || [];
-            } catch(e) { this.hlTemplates = []; }
+                const all = r.data || [];
+                this.hlTemplates = all;
+                this.bulkTemplates = all.filter(t => t.type === 'bulk_request');
+                const def = this.bulkTemplates.find(t => t.is_default);
+                if (def) this.bulkRequestForm.template_id = def.id;
+            } catch(e) { this.hlTemplates = []; this.bulkTemplates = []; }
         },
 
         toggleFilter(filter) {

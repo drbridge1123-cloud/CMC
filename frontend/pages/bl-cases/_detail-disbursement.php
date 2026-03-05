@@ -1,4 +1,4 @@
-<div class="disb-panel c1-section" data-panel x-data="disbursementPanel(caseId)" x-init="init()">
+<div class="disb-panel c1-section" data-panel x-data="disbursementPanel(caseId)">
     <!-- Header -->
     <div class="disb-header c1-section-header" :class="open && 'is-open'" @click="open = !open; if(open) $nextTick(() => $el.closest('[data-panel]').scrollIntoView({behavior:'smooth',block:'start'}))">
         <div class="disb-header-left">

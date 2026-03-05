@@ -6,7 +6,7 @@
 .prelit-row-due:hover { background-color: #fef3c7 !important; }
 </style>
 
-<div x-data="prelitTrackerPage()" x-init="init()">
+<div x-data="prelitTrackerPage()">
 
     <!-- Page header row -->
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">

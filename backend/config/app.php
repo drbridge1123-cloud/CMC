@@ -14,9 +14,9 @@ define('STORAGE_PATH', BASE_PATH . '/storage');
 define('SESSION_LIFETIME', (int)($_ENV['SESSION_LIFETIME'] ?? 28800));
 define('SESSION_NAME', $_ENV['SESSION_NAME'] ?? 'CMC_SESSION');
 
-// Pagination (large default = show all on one page)
-define('ITEMS_PER_PAGE', 10000);
-define('MAX_ITEMS_PER_PAGE', 10000);
+// Pagination
+define('ITEMS_PER_PAGE', 50);
+define('MAX_ITEMS_PER_PAGE', 1000);
 
 // MR Defaults
 define('DEFAULT_FOLLOWUP_DAYS', 7);

@@ -30,8 +30,7 @@ function messagesPage() {
 
         async loadStaff() {
             try {
-                const res = await api.get('users?active_only=1');
-                this.staffList = res.data || [];
+                this.staffList = await Alpine.store('staff').getList();
             } catch(e) { this.staffList = []; }
         },
 

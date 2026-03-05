@@ -84,7 +84,13 @@ if ($sortBy === 'next_followup_date') {
     $sql .= " ORDER BY c.{$sortBy} {$sortDir}";
 }
 
-$items = dbFetchAll($sql, $params);
+// Count total for pagination
+$total = (int)dbFetchOne("SELECT COUNT(*) AS cnt FROM ({$sql}) AS cnt_sub", $params)['cnt'];
+
+// Add LIMIT/OFFSET for pagination
+[$page, $perPage, $offset] = getPaginationParams();
+$sql .= " LIMIT ? OFFSET ?";
+$items = dbFetchAll($sql, array_merge($params, [$perPage, $offset]));
 
 // Compute flags
 $today = date('Y-m-d');
@@ -98,22 +104,26 @@ foreach ($items as &$item) {
 }
 unset($item);
 
-// Summary stats (computed from filtered results)
-$summaryTotal = count($items);
-$followupDue = 0; $noContact = 0; $treatmentComplete = 0;
-foreach ($items as $item) {
-    if ($item['is_followup_due']) $followupDue++;
-    if ($item['last_followup_date'] === null) $noContact++;
-    if ($item['treatment_status'] === 'treatment_done') $treatmentComplete++;
-}
+// Summary stats (from base WHERE without quick filter → consistent badge counts)
+$summaryRow = dbFetchOne("SELECT
+    COUNT(*) AS total,
+    SUM(lf.next_followup_date IS NOT NULL AND lf.next_followup_date <= CURDATE()) AS followup_due,
+    SUM(lf.last_followup_date IS NULL) AS no_contact,
+    SUM(c.treatment_status = 'treatment_done') AS treatment_complete
+    FROM cases c
+    LEFT JOIN (
+        SELECT pf1.case_id, pf1.followup_date AS last_followup_date, pf1.next_followup_date
+        FROM prelitigation_followups pf1
+        INNER JOIN (SELECT case_id, MAX(id) AS max_id FROM prelitigation_followups GROUP BY case_id) cnt
+        ON cnt.case_id = pf1.case_id AND cnt.max_id = pf1.id
+    ) lf ON lf.case_id = c.id
+    WHERE {$where}", $params);
 
-jsonResponse([
-    'success' => true,
-    'data' => $items,
+paginatedResponse($items, $total, $page, $perPage, [
     'summary' => [
-        'total' => $summaryTotal,
-        'followup_due' => $followupDue,
-        'no_contact' => $noContact,
-        'treatment_complete' => $treatmentComplete,
+        'total' => (int)($summaryRow['total'] ?? 0),
+        'followup_due' => (int)($summaryRow['followup_due'] ?? 0),
+        'no_contact' => (int)($summaryRow['no_contact'] ?? 0),
+        'treatment_complete' => (int)($summaryRow['treatment_complete'] ?? 0),
     ]
 ]);

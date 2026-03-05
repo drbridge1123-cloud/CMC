@@ -7,6 +7,8 @@ $pageTitle = 'Attorney Cases';
 $currentPage = 'attorney_cases';
 $pageScripts = [
     '/CMCdemo/frontend/assets/js/components/pending-assignments.js',
+    '/CMCdemo/frontend/assets/js/pages/attorney/calculations.js',
+    '/CMCdemo/frontend/assets/js/pages/attorney/modals.js',
     '/CMCdemo/frontend/assets/js/pages/attorney/index.js'
 ];
 $pageContent = __DIR__ . '/_content.php';

@@ -72,20 +72,22 @@ if (isset($dateColumns[$newStatus])) {
     $updateData[$dateColumns[$newStatus]] = date('Y-m-d');
 }
 
-dbUpdate('cases', $updateData, 'id = ?', [$id]);
+dbTransaction(function() use ($updateData, $id, $userId, $currentStatus, $newStatus, $note, $assignTo, $case) {
+    dbUpdate('cases', $updateData, 'id = ?', [$id]);
 
-// Log activity
-logActivity($userId, 'change_status', 'case', $id, [
-    'from'  => $currentStatus,
-    'to'    => $newStatus,
-    'note'  => $note,
-]);
+    // Log activity
+    logActivity($userId, 'change_status', 'case', $id, [
+        'from'  => $currentStatus,
+        'to'    => $newStatus,
+        'note'  => $note,
+    ]);
 
-// Create notification for assigned staff
-dbInsert('notifications', [
-    'user_id' => $assignTo,
-    'type'    => 'status_change',
-    'message' => "Case {$case['case_number']} ({$case['client_name']}) moved to {$newStatus}: {$note}",
-]);
+    // Create notification for assigned staff
+    dbInsert('notifications', [
+        'user_id' => $assignTo,
+        'type'    => 'status_change',
+        'message' => "Case {$case['case_number']} ({$case['client_name']}) moved to {$newStatus}: {$note}",
+    ]);
+});
 
 successResponse(null, "Case status changed to {$newStatus}");

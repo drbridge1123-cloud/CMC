@@ -28,24 +28,26 @@ if (!$assignee) errorResponse('Assigned user not found', 404);
 
 $today = date('Y-m-d');
 
-// Update attorney case
-dbUpdate('attorney_cases', [
-    'status' => 'billing_review',
-    'sent_to_billing_final_date' => $today,
-    'billing_final_assigned_to' => $assignedTo,
-], 'id = ?', [$caseId]);
+dbTransaction(function() use ($caseId, $today, $assignedTo, $userId, $attCase, $note) {
+    // Update attorney case
+    dbUpdate('attorney_cases', [
+        'status' => 'billing_review',
+        'sent_to_billing_final_date' => $today,
+        'billing_final_assigned_to' => $assignedTo,
+    ], 'id = ?', [$caseId]);
 
-// Notification
-dbInsert('notifications', [
-    'user_id' => $assignedTo,
-    'type' => 'status_change',
-    'message' => "Attorney case {$attCase['case_number']} ({$attCase['client_name']}) sent for billing final review" . ($note ? ": {$note}" : ''),
-]);
+    // Notification
+    dbInsert('notifications', [
+        'user_id' => $assignedTo,
+        'type' => 'status_change',
+        'message' => "Attorney case {$attCase['case_number']} ({$attCase['client_name']}) sent for billing final review" . ($note ? ": {$note}" : ''),
+    ]);
 
-// Activity log
-logActivity($userId, 'send_to_billing_final', 'attorney_case', $caseId, [
-    'assigned_to' => $assignedTo,
-    'note' => $note,
-]);
+    // Activity log
+    logActivity($userId, 'send_to_billing_final', 'attorney_case', $caseId, [
+        'assigned_to' => $assignedTo,
+        'note' => $note,
+    ]);
+});
 
 successResponse([], 'Sent to billing for final balance checkup');

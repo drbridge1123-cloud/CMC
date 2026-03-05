@@ -99,8 +99,7 @@ function referralsPage() {
 
         async loadUsers() {
             try {
-                const res = await api.get('users?is_active=1&per_page=100');
-                this.users = res.data || [];
+                this.users = await Alpine.store('staff').getList();
             } catch (e) { /* ignore */ }
         },
 
@@ -263,12 +262,6 @@ function referralsPage() {
         // -------------------------------------------------------
         //  Helpers
         // -------------------------------------------------------
-        formatCurrency(val) {
-            return '$' + parseFloat(val || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            });
-        },
-
         getStatusClass(status) {
             const map = {
                 'INI': 'bg-blue-100 text-blue-700',
@@ -324,17 +317,7 @@ function referralsPage() {
         },
 
         paginationPages() {
-            const p = this.pagination;
-            if (!p) return [];
-            const pages = [];
-            for (let i = 1; i <= p.total_pages; i++) {
-                if (i === 1 || i === p.total_pages || Math.abs(i - p.current_page) <= 2) {
-                    pages.push(i);
-                } else if (pages[pages.length - 1] !== '...') {
-                    pages.push('...');
-                }
-            }
-            return pages;
+            return buildPageNumbers(this.pagination);
         },
 
         // -------------------------------------------------------

@@ -1,13 +1,6 @@
     <style>
-    /* ── Workflow Modal ── */
-    .wfm { width: 460px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); overflow: hidden; background: #fff; }
-    .wfm-header { padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .wfm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
-    .wfm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; }
-    .wfm-close:hover { color: rgba(255,255,255,.75); }
-    .wfm-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-    .wfm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
-    .wfm-label .wfm-hint { font-weight: 400; text-transform: none; }
+    /* ── Workflow Modal (unique styles) ── */
+    .wfm-hint { font-weight: 400; text-transform: none; }
     .wfm-textarea {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 12px; font-size: 13px; color: #1a2535; transition: all .15s; outline: none; font-family: inherit;
@@ -24,7 +17,6 @@
     }
     .wfm-status-bar .wfm-from { font-size: 13px; font-weight: 600; color: var(--muted, #8a8a82); }
     .wfm-status-bar .wfm-to { font-size: 13px; font-weight: 700; }
-    .wfm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: flex-end; gap: 10px; }
     .wfm-btn-cancel {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 18px; font-size: 13px; font-weight: 500; color: #5A6B82; cursor: pointer; transition: all .15s;
@@ -39,25 +31,25 @@
     </style>
 
     <!-- Unified Status Change Modal -->
-    <div x-show="showStatusChangeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showStatusChangeModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showStatusChangeModal && (showStatusChangeModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showStatusChangeModal = false"></div>
-        <form @submit.prevent="submitStatusChange()" class="wfm relative z-10" @click.stop>
-            <div class="wfm-header"
+        <div class="fixed inset-0" @click="showStatusChangeModal = false"></div>
+        <form @submit.prevent="submitStatusChange()" class="sp-modal-box relative z-10" @click.stop>
+            <div class="sp-modal-header"
                 :style="statusChangeForm.direction === 'forward' ? 'background:var(--gold, #C9A84C);'
                     : statusChangeForm.direction === 'reassign' ? 'background:#2563eb;'
                     : 'background:#ea580c;'">
-                <h3 :style="statusChangeForm.direction === 'forward' ? 'color:#0F1B2D;' : 'color:#fff;'"
+                <h3 class="sp-modal-title" :style="statusChangeForm.direction === 'forward' ? 'color:#0F1B2D;' : 'color:#fff;'"
                     x-text="statusChangeForm.direction === 'forward' ? 'Move Case Forward'
                         : statusChangeForm.direction === 'reassign' ? 'Reassign Case'
                         : 'Send Case Back'"></h3>
-                <button type="button" class="wfm-close"
+                <button type="button" class="sp-modal-close"
                     :style="statusChangeForm.direction === 'forward' ? 'color:rgba(15,27,45,.4);' : ''"
                     @click="showStatusChangeModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="wfm-body">
+            <div class="sp-modal-body">
                 <template x-if="statusChangeForm.direction !== 'reassign'">
                     <div class="wfm-status-bar">
                         <span class="wfm-from" x-text="statusChangeForm.from_label"></span>
@@ -78,7 +70,7 @@
                     </div>
                 </template>
                 <div>
-                    <label class="wfm-label">Assign To <span style="color:var(--gold);">*</span></label>
+                    <label class="sp-form-label">Assign To <span style="color:var(--gold);">*</span></label>
                     <select x-model="statusChangeForm.assign_to" class="wfm-textarea" style="min-height:auto; padding:9px 12px;">
                         <option value="">-- Select Staff --</option>
                         <template x-for="s in staffList" :key="s.id">
@@ -87,12 +79,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="wfm-label">Note <span style="color:var(--gold);">*</span> <span class="wfm-hint">(min 5 chars)</span></label>
+                    <label class="sp-form-label">Note <span style="color:var(--gold);">*</span> <span class="wfm-hint">(min 5 chars)</span></label>
                     <textarea x-model="statusChangeForm.note" required rows="3" minlength="5"
                         placeholder="Describe why this change is being made..." class="wfm-textarea"></textarea>
                 </div>
             </div>
-            <div class="wfm-footer">
+            <div class="sp-modal-footer">
                 <button type="button" @click="showStatusChangeModal = false" class="wfm-btn-cancel">Cancel</button>
                 <button type="submit" :disabled="saving || statusChangeForm.note.trim().length < 5 || !statusChangeForm.assign_to" class="wfm-btn-submit"
                     :style="statusChangeForm.direction === 'forward'

@@ -194,17 +194,7 @@ function commissionsPage() {
         },
 
         commPageNumbers() {
-            const total = this.commTotalPages;
-            const cur = this.commPage;
-            const pages = [];
-            for (let i = 1; i <= total; i++) {
-                if (i === 1 || i === total || Math.abs(i - cur) <= 2) {
-                    pages.push(i);
-                } else if (pages[pages.length - 1] !== '...') {
-                    pages.push('...');
-                }
-            }
-            return pages;
+            return buildPageNumbers({ current_page: this.commPage, total_pages: this.commTotalPages });
         },
 
         // -------------------------------------------------------
@@ -225,17 +215,7 @@ function commissionsPage() {
         },
 
         historyPageNumbers() {
-            const total = this.historyTotalPages;
-            const cur = this.historyPage;
-            const pages = [];
-            for (let i = 1; i <= total; i++) {
-                if (i === 1 || i === total || Math.abs(i - cur) <= 2) {
-                    pages.push(i);
-                } else if (pages[pages.length - 1] !== '...') {
-                    pages.push('...');
-                }
-            }
-            return pages;
+            return buildPageNumbers({ current_page: this.historyPage, total_pages: this.historyTotalPages });
         },
 
         // -------------------------------------------------------
@@ -322,9 +302,9 @@ function commissionsPage() {
         // -------------------------------------------------------
         async loadEmployees() {
             try {
-                const res = await api.get('users?active_only=1');
+                const all = await Alpine.store('staff').getList();
                 // Filter to commission-eligible roles (staff, manager)
-                this.employees = (res.data || []).filter(u =>
+                this.employees = all.filter(u =>
                     u.role === 'paralegal' || u.role === 'billing' || u.role === 'manager'
                 );
             } catch (e) { /* ignore */ }
@@ -617,19 +597,6 @@ function commissionsPage() {
         },
 
         // -------------------------------------------------------
-        //  Formatting
-        // -------------------------------------------------------
-        fmt(val) {
-            return parseFloat(val || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            });
-        },
-
-        formatCurrency(val) {
-            return '$' + this.fmt(val);
-        },
-
-        // -------------------------------------------------------
         //  CRUD Operations
         // -------------------------------------------------------
         openCreateModal() {
@@ -821,17 +788,7 @@ function commissionsPage() {
         },
 
         paginationPages() {
-            const p = this.pagination;
-            if (!p) return [];
-            const pages = [];
-            for (let i = 1; i <= p.total_pages; i++) {
-                if (i === 1 || i === p.total_pages || Math.abs(i - p.current_page) <= 2) {
-                    pages.push(i);
-                } else if (pages[pages.length - 1] !== '...') {
-                    pages.push('...');
-                }
-            }
-            return pages;
+            return buildPageNumbers(this.pagination);
         },
 
         // -------------------------------------------------------

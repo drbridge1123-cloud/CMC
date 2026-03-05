@@ -13,6 +13,8 @@ document.addEventListener('alpine:init', () => {
             try {
                 const res = await api.get('auth/me');
                 this.user = res.data;
+                // Push unread count to messages store (avoids separate auth/me call)
+                Alpine.store('messages').unreadCount = res.data?.unread_messages || 0;
             } catch (e) {
                 this.user = null;
             }
@@ -38,21 +40,56 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
-    // Messages Store
+    // Messages Store (initial count comes from auth store — no duplicate auth/me call)
     Alpine.store('messages', {
         unreadCount: 0,
         _interval: null,
 
         init() {
-            this.load();
-            this._interval = setInterval(() => this.load(), 30000);
+            // Initial unreadCount is set by auth.load() — no fetch needed here
+            // Periodic refresh reuses same endpoint and updates both stores
+            this._interval = setInterval(() => this._refresh(), 30000);
         },
 
-        async load() {
+        async _refresh() {
             try {
                 const res = await api.get('auth/me');
                 this.unreadCount = res.data?.unread_messages || 0;
+                // Keep auth store in sync
+                if (res.data) Alpine.store('auth').user = res.data;
             } catch (e) {}
+        }
+    });
+
+    // Staff Store (cached user list — avoids redundant /api/users calls)
+    Alpine.store('staff', {
+        _list: null,
+        _fetchedAt: 0,
+        _pending: null,
+        CACHE_TTL: 5 * 60 * 1000, // 5 minutes
+
+        async getList() {
+            if (this._list && (Date.now() - this._fetchedAt) < this.CACHE_TTL) {
+                return this._list;
+            }
+            // Deduplicate concurrent calls — return same promise
+            if (this._pending) return this._pending;
+            this._pending = api.get('users?active_only=1').then(res => {
+                this._list = res.data || [];
+                this._fetchedAt = Date.now();
+                this._pending = null;
+                return this._list;
+            }).catch(e => {
+                this._pending = null;
+                throw e;
+            });
+            return this._pending;
+        },
+
+        invalidate() {
+            this._list = null;
+            this._fetchedAt = 0;
+            this._pending = null;
         }
     });
 

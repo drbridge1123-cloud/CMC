@@ -1,19 +1,19 @@
 <!-- Treatment Complete Modal -->
-<div x-show="showTxCompleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+<div x-show="showTxCompleteModal" class="sp-modal-overlay"
      style="display:none;" @keydown.escape.window="showTxCompleteModal && (showTxCompleteModal = false)">
-    <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showTxCompleteModal = false"></div>
-    <div class="ecm relative z-10" style="width:400px;" @click.stop>
+    <div class="fixed inset-0" @click="showTxCompleteModal = false"></div>
+    <div class="sp-modal-box sp-modal-box-sm relative z-10" @click.stop>
 
         <!-- Header -->
-        <div class="ecm-header">
-            <h3>Mark Treatment Complete</h3>
-            <button type="button" class="ecm-close" @click="showTxCompleteModal = false">
+        <div class="sp-modal-header">
+            <h3 class="sp-modal-title">Mark Treatment Complete</h3>
+            <button type="button" class="sp-modal-close" @click="showTxCompleteModal = false">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
         <!-- Body -->
-        <div class="ecm-body">
+        <div class="sp-modal-body">
             <!-- Provider name -->
             <div style="background:#f8f7f4; border-radius:7px; padding:10px 13px;">
                 <div style="font-size:12.5px; color:#1a2535; display:flex; align-items:center; gap:6px;">
@@ -30,14 +30,14 @@
 
             <!-- Treatment End Date -->
             <div>
-                <label class="ecm-label">Treatment End Date <span class="ecm-req">*</span></label>
+                <label class="sp-form-label">Treatment End Date <span class="ecm-req">*</span></label>
                 <input type="date" x-model="txCompleteDate" class="ecm-input"
                        :max="new Date().toISOString().split('T')[0]">
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="ecm-footer">
+        <div class="sp-modal-footer">
             <button type="button" @click="showTxCompleteModal = false" class="ecm-btn-cancel">Cancel</button>
             <button type="button" @click="saveTreatmentComplete()"
                     :disabled="txCompleteSaving || !txCompleteChecked || !txCompleteDate"

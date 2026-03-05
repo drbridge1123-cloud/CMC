@@ -49,7 +49,7 @@
 .msg-unread-dot { width: 7px; height: 7px; background: #3b82f6; border-radius: 50%; display: inline-block; }
 </style>
 
-<div x-data="messagesPage()" x-init="init()">
+<div x-data="messagesPage()">
 
     <!-- ═══ Unified Card ═══ -->
     <div class="sp-card">

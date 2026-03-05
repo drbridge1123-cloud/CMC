@@ -1,15 +1,5 @@
     <style>
-    /* ── Add Provider Modal ── */
-    .apm { width: 540px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); background: #fff; }
-    .apm-header { background: #0F1B2D; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-radius: 12px 12px 0 0; }
-    .apm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
-    .apm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; }
-    .apm-close:hover { color: rgba(255,255,255,.75); }
-    .apm-body { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
-    .apm-body::-webkit-scrollbar { width: 4px; }
-    .apm-body::-webkit-scrollbar-track { background: transparent; }
-    .apm-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-    .apm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    /* ── Add Provider Modal (unique styles) ── */
     .apm-req { color: var(--gold, #C9A84C); }
     .apm-input, .apm-select {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
@@ -46,9 +36,6 @@
         transition: background .1s;
     }
     .apm-dropdown-create:hover { background: rgba(201,168,76,.06); }
-    .apm-section { display: flex; align-items: center; gap: 10px; margin: 0; }
-    .apm-section::before, .apm-section::after { content: ''; flex: 1; height: 1px; background: var(--border, #d0cdc5); }
-    .apm-section span { font-size: 9px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
     .apm-type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .apm-type-card {
         display: flex; align-items: center; gap: 7px; cursor: pointer;
@@ -58,7 +45,6 @@
     .apm-type-card:hover { border-color: rgba(201,168,76,.5); background: #fff; }
     .apm-type-card.checked { border-color: var(--gold, #C9A84C); background: rgba(201,168,76,.06); }
     .apm-type-card input[type="checkbox"] { accent-color: var(--gold, #C9A84C); width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
-    .apm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: flex-end; gap: 10px; border-radius: 0 0 12px 12px; background: #fff; }
     .apm-btn-cancel {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 18px; font-size: 13px; font-weight: 500; color: #5A6B82; cursor: pointer; transition: all .15s;
@@ -74,25 +60,25 @@
     </style>
 
     <!-- Add Provider Modal -->
-    <div x-show="showAddProviderModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showAddProviderModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showAddProviderModal && (showAddProviderModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showAddProviderModal = false"></div>
-        <form @submit.prevent="addProvider()" class="apm relative z-10" @click.stop>
+        <div class="fixed inset-0" @click="showAddProviderModal = false"></div>
+        <form @submit.prevent="addProvider()" class="sp-modal-box relative z-10" @click.stop>
 
             <!-- Header -->
-            <div class="apm-header">
-                <h3>Add Provider to Case</h3>
-                <button type="button" class="apm-close" @click="showAddProviderModal = false">
+            <div class="sp-modal-header">
+                <h3 class="sp-modal-title">Add Provider to Case</h3>
+                <button type="button" class="sp-modal-close" @click="showAddProviderModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <!-- Body -->
-            <div class="apm-body">
+            <div class="sp-modal-body">
 
                 <!-- Provider Search -->
                 <div>
-                    <label class="apm-label">Provider <span class="apm-req">*</span></label>
+                    <label class="sp-form-label">Provider <span class="apm-req">*</span></label>
                     <div class="apm-search-wrap">
                         <span class="apm-search-icon">🔍</span>
                         <input type="text" x-model="providerSearch" @input.debounce.300ms="searchProviders()"
@@ -120,7 +106,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="apm-footer">
+            <div class="sp-modal-footer">
                 <button type="button" @click="showAddProviderModal = false" class="apm-btn-cancel">Cancel</button>
                 <button type="submit" :disabled="!selectedProvider || saving" class="apm-btn-submit">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>

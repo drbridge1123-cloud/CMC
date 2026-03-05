@@ -22,13 +22,22 @@ if ($search) {
 $allowedSorts = ['name', 'dob', 'phone', 'email', 'created_at'];
 if (!in_array($sortBy, $allowedSorts)) $sortBy = 'name';
 
+// Count total for pagination
+$total = (int)dbFetchOne(
+    "SELECT COUNT(*) AS cnt FROM clients cl WHERE {$where}",
+    $params
+)['cnt'];
+
+[$page, $perPage, $offset] = getPaginationParams();
+
 $clients = dbFetchAll(
     "SELECT cl.*,
             (SELECT COUNT(*) FROM cases c WHERE c.client_id = cl.id) AS case_count
      FROM clients cl
      WHERE {$where}
-     ORDER BY cl.{$sortBy} {$sortDir}",
-    $params
+     ORDER BY cl.{$sortBy} {$sortDir}
+     LIMIT ? OFFSET ?",
+    array_merge($params, [$perPage, $offset])
 );
 
 foreach ($clients as &$row) {
@@ -36,4 +45,4 @@ foreach ($clients as &$row) {
 }
 unset($row);
 
-successResponse($clients);
+paginatedResponse($clients, $total, $page, $perPage);

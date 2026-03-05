@@ -21,8 +21,7 @@
 
     async loadEmployees() {
         try {
-            const res = await api.get('users?is_active=1&per_page=100');
-            this.employees = res.data || [];
+            this.employees = await Alpine.store('staff').getList();
         } catch (e) { /* ignore */ }
     },
 

@@ -83,7 +83,7 @@ function trafficPage() {
         async loadCases(page = 1) {
             this.loading = true;
             try {
-                const params = { page, per_page: 25 };
+                const params = { page, per_page: 50 };
                 if (this.statusFilter) params.status = this.statusFilter;
                 if (this.search) params.search = this.search;
 
@@ -244,12 +244,6 @@ function trafficPage() {
         // -------------------------------------------------------
         //  Helpers
         // -------------------------------------------------------
-        formatCurrency(val) {
-            return '$' + parseFloat(val || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            });
-        },
-
         getCommissionAmount(disposition) {
             if (disposition === 'dismissed') return '150.00';
             if (disposition === 'amended') return '100.00';
@@ -275,17 +269,7 @@ function trafficPage() {
         },
 
         paginationPages() {
-            const p = this.pagination;
-            if (!p) return [];
-            const pages = [];
-            for (let i = 1; i <= p.total_pages; i++) {
-                if (i === 1 || i === p.total_pages || Math.abs(i - p.current_page) <= 2) {
-                    pages.push(i);
-                } else if (pages[pages.length - 1] !== '...') {
-                    pages.push('...');
-                }
-            }
-            return pages;
+            return buildPageNumbers(this.pagination);
         },
 
         // -------------------------------------------------------

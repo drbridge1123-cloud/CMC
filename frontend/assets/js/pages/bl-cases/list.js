@@ -3,7 +3,7 @@ function casesListPage() {
         ...listPageBase('bl-cases', {
             defaultSort: 'case_number',
             defaultDir: 'desc',
-            perPage: 9999,
+            perPage: 50,
             filtersToParams() {
                 return {
                     status: this.search ? '' : this.statusFilter,
@@ -139,8 +139,7 @@ function casesListPage() {
 
         async init() {
             try {
-                const res = await api.get('users?active_only=1');
-                this.staffList = res.data || [];
+                this.staffList = await Alpine.store('staff').getList();
             } catch (e) {}
 
             // Check for incoming search from Attorney Cases

@@ -31,11 +31,13 @@ if ($note) {
     $data['note'] = $existing ? $existing . "\n" . $note : $note;
 }
 
-dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
+dbTransaction(function() use ($data, $caseId, $userId, $litigationStartDate, $presuitOffer) {
+    dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
 
-logActivity($userId, 'to_litigation', 'attorney_case', $caseId, [
-    'litigation_start_date' => $litigationStartDate,
-    'presuit_offer' => $presuitOffer
-]);
+    logActivity($userId, 'to_litigation', 'attorney_case', $caseId, [
+        'litigation_start_date' => $litigationStartDate,
+        'presuit_offer' => $presuitOffer,
+    ]);
+});
 
 successResponse(null, 'Case moved to litigation');

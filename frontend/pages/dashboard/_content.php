@@ -53,7 +53,7 @@
 .db-quick-icon { color: #C9A84C; font-size: 14px; }
 </style>
 
-<div x-data="dashboardPage()" x-init="init()">
+<div x-data="dashboardPage()">
 
     <!-- ═══ Top KPI Row: MR Metrics ═══ -->
     <div class="db-kpi-grid">

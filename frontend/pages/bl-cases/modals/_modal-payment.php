@@ -1,16 +1,6 @@
     <style>
-    /* ── Log Payment Modal ── */
-    .lpm { width: 580px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); overflow: hidden; background: #fff; }
-    .lpm-header { background: #0F1B2D; padding: 18px 24px 16px; display: flex; align-items: flex-start; justify-content: space-between; }
-    .lpm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
-    .lpm-header .lpm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
-    .lpm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; margin-top: 2px; }
-    .lpm-close:hover { color: rgba(255,255,255,.75); }
-    .lpm-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
-    .lpm-body::-webkit-scrollbar { width: 4px; }
-    .lpm-body::-webkit-scrollbar-track { background: transparent; }
-    .lpm-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-    .lpm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    /* ── Log Payment Modal (unique styles) ── */
+    .lpm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
     .lpm-req { color: var(--gold, #C9A84C); }
     .lpm-input, .lpm-select {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
@@ -38,9 +28,6 @@
         box-shadow: 0 0 0 3px rgba(201,168,76,.1);
     }
     .lpm-textarea::placeholder { color: #c5c5c5; }
-    .lpm-section { display: flex; align-items: center; gap: 10px; margin: 0; }
-    .lpm-section::before, .lpm-section::after { content: ''; flex: 1; height: 1px; background: var(--border, #d0cdc5); }
-    .lpm-section span { font-size: 9px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
     .lpm-search-wrap { position: relative; }
     .lpm-search-wrap .lpm-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #bbb; pointer-events: none; z-index: 1; }
     .lpm-search-wrap .lpm-input { padding-left: 34px; padding-right: 2rem; }
@@ -97,7 +84,6 @@
     }
     .lpm-file-attached .lpm-file-remove:hover { color: #dc2626; }
     .lpm-file-hint { font-size: 10.5px; color: var(--muted, #8a8a82); margin-top: 6px; }
-    .lpm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: flex-end; gap: 10px; }
     .lpm-btn-cancel {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 18px; font-size: 13px; font-weight: 500; color: #5A6B82; cursor: pointer; transition: all .15s;
@@ -137,28 +123,28 @@
     </style>
 
     <!-- Payment Modal -->
-    <div x-show="showPaymentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showPaymentModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showPaymentModal && (showPaymentModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showPaymentModal = false"></div>
-        <form @submit.prevent="submitPayment()" class="lpm relative z-10" @click.stop>
+        <div class="fixed inset-0" @click="showPaymentModal = false"></div>
+        <form @submit.prevent="submitPayment()" class="sp-modal-box relative z-10" @click.stop>
 
             <!-- Header -->
-            <div class="lpm-header">
+            <div class="sp-modal-header">
                 <div>
-                    <h3 x-text="paymentForm.id ? 'Edit Payment' : 'Log Payment'"></h3>
+                    <h3 class="sp-modal-title" x-text="paymentForm.id ? 'Edit Payment' : 'Log Payment'"></h3>
                     <div class="lpm-subtitle" x-text="paymentForm.provider_name || 'Case-level cost'"></div>
                 </div>
-                <button type="button" class="lpm-close" @click="showPaymentModal = false">
+                <button type="button" class="sp-modal-close" @click="showPaymentModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <!-- Body -->
-            <div class="lpm-body">
+            <div class="sp-modal-body">
 
                 <!-- Provider Search -->
                 <div>
-                    <label class="lpm-label">Provider</label>
+                    <label class="sp-form-label">Provider</label>
                     <div class="lpm-search-wrap">
                         <span class="lpm-search-icon">🔍</span>
                         <input type="text" x-model="paymentProviderSearch"
@@ -191,15 +177,15 @@
                 </div>
 
                 <!-- Details -->
-                <div class="lpm-section"><span>Details</span></div>
-                <div style="display:flex; gap:12px;">
+                <div class="sp-form-section">Details</div>
+                <div class="sp-form-grid-2">
                     <div style="flex:2;">
-                        <label class="lpm-label">Description</label>
+                        <label class="sp-form-label">Description</label>
                         <input type="text" x-model="paymentForm.description" class="lpm-input"
                             placeholder="Record Fee, Police Report, etc.">
                     </div>
                     <div style="flex:1;">
-                        <label class="lpm-label">Category</label>
+                        <label class="sp-form-label">Category</label>
                         <select x-model="paymentForm.expense_category"
                             @change="$nextTick(() => { if(paymentForm.expense_category === 'litigation' && !paymentForm.id) fetchRelatedCases(); else resetSplitState(); })"
                             class="lpm-select">
@@ -261,7 +247,7 @@
                 </div>
 
                 <!-- Amounts & Dates -->
-                <div class="lpm-section"><span>Amounts &amp; Dates</span></div>
+                <div class="sp-form-section">Amounts &amp; Dates</div>
 
                 <!-- No Record Fee notice -->
                 <template x-if="paymentForm._noRecordFee">
@@ -272,14 +258,14 @@
                     ? 'display:grid; grid-template-columns:1fr 1fr; gap:12px;'
                     : 'display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px;'">
                     <div>
-                        <label class="lpm-label">Billed Amount</label>
+                        <label class="sp-form-label">Billed Amount</label>
                         <div class="lpm-amount-wrap">
                             <span class="lpm-dollar">$</span>
                             <input type="number" step="0.01" min="0" x-model.number="paymentForm.billed_amount" class="lpm-input">
                         </div>
                     </div>
                     <div x-show="!paymentForm._noRecordFee">
-                        <label class="lpm-label">Paid Amount <span class="lpm-req">*</span></label>
+                        <label class="sp-form-label">Paid Amount <span class="lpm-req">*</span></label>
                         <div class="lpm-amount-wrap">
                             <span class="lpm-dollar">$</span>
                             <input type="number" step="0.01" min="0" x-model.number="paymentForm.paid_amount"
@@ -287,11 +273,11 @@
                         </div>
                     </div>
                     <div>
-                        <label class="lpm-label">Date <span class="lpm-req">*</span></label>
+                        <label class="sp-form-label">Date <span class="lpm-req">*</span></label>
                         <input type="date" x-model="paymentForm.payment_date" required class="lpm-input lpm-date">
                     </div>
                     <div x-show="!paymentForm._noRecordFee">
-                        <label class="lpm-label">Paid Date</label>
+                        <label class="sp-form-label">Paid Date</label>
                         <input type="date" x-model="paymentForm.paid_date" class="lpm-input lpm-date">
                     </div>
                 </div>
@@ -299,10 +285,10 @@
                 <!-- Payment Info -->
                 <template x-if="!paymentForm._noRecordFee">
                     <div style="display:flex; flex-direction:column; gap:16px;">
-                        <div class="lpm-section"><span>Payment Info</span></div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                        <div class="sp-form-section">Payment Info</div>
+                        <div class="sp-form-grid-3">
                             <div>
-                                <label class="lpm-label">Payment Type</label>
+                                <label class="sp-form-label">Payment Type</label>
                                 <select x-model="paymentForm.payment_type" @change="autoFillCardNumber()" class="lpm-select">
                                     <option value="">Select...</option>
                                     <option value="check">Check</option>
@@ -313,7 +299,7 @@
                                 </select>
                             </div>
                             <div x-show="paymentForm.payment_type === 'check' || paymentForm.payment_type === 'card'">
-                                <label class="lpm-label" x-text="paymentForm.payment_type === 'card' ? 'Card Last 4' : 'Check #'"></label>
+                                <label class="sp-form-label" x-text="paymentForm.payment_type === 'card' ? 'Card Last 4' : 'Check #'"></label>
                                 <input type="text" x-model="paymentForm.check_number" class="lpm-input lpm-mono"
                                     :placeholder="paymentForm.payment_type === 'card' ? 'Last 4 digits' : 'Check number'"
                                     :readonly="paymentForm.payment_type === 'card' && paymentForm.check_number !== ''"
@@ -321,7 +307,7 @@
                                     maxlength="paymentForm.payment_type === 'card' ? 4 : 50">
                             </div>
                             <div :class="paymentForm.payment_type !== 'check' && paymentForm.payment_type !== 'card' ? 'col-span-2' : ''">
-                                <label class="lpm-label">Paid By</label>
+                                <label class="sp-form-label">Paid By</label>
                                 <select x-model="paymentForm.paid_by" @change="autoFillCardNumber()" class="lpm-select">
                                     <option value="">Select staff...</option>
                                     <template x-for="u in staffList" :key="u.id">
@@ -334,7 +320,7 @@
                 </template>
 
                 <!-- Receipt / Invoice -->
-                <div class="lpm-section"><span>Receipt / Invoice</span></div>
+                <div class="sp-form-section">Receipt / Invoice</div>
                 <div x-data="{ uploading: false }">
                     <template x-if="paymentForm.receipt_document_id">
                         <div class="lpm-file-attached">
@@ -359,7 +345,7 @@
                 </div>
 
                 <!-- Notes -->
-                <div class="lpm-section"><span>Notes</span></div>
+                <div class="sp-form-section">Notes</div>
                 <div>
                     <textarea x-model="paymentForm.notes" class="lpm-textarea"
                         placeholder="Additional notes..."></textarea>
@@ -368,7 +354,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="lpm-footer">
+            <div class="sp-modal-footer">
                 <button type="button" @click="showPaymentModal = false" class="lpm-btn-cancel">Cancel</button>
                 <button type="submit" :disabled="saving" class="lpm-btn-submit">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

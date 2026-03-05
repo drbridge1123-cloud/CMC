@@ -41,8 +41,7 @@ function reportsPage() {
 
         async loadEmployees() {
             try {
-                const res = await api.get('users?active=1');
-                this.employees = (res.data || []).filter(u => u.is_active);
+                this.employees = await Alpine.store('staff').getList();
             } catch (e) {
                 console.error('Failed to load employees:', e);
             }

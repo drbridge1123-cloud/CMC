@@ -1,16 +1,6 @@
     <style>
-    /* ── Log Request Modal ── */
-    .lrm { width: 580px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); overflow: hidden; background: #fff; }
-    .lrm-header { background: #0F1B2D; padding: 18px 24px 16px; display: flex; align-items: flex-start; justify-content: space-between; }
-    .lrm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
-    .lrm-header .lrm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
-    .lrm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; margin-top: 2px; }
-    .lrm-close:hover { color: rgba(255,255,255,.75); }
-    .lrm-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
-    .lrm-body::-webkit-scrollbar { width: 4px; }
-    .lrm-body::-webkit-scrollbar-track { background: transparent; }
-    .lrm-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-    .lrm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    /* ── Log Request Modal (unique styles) ── */
+    .lrm-subtitle { font-size: 12px; font-weight: 500; color: var(--gold, #C9A84C); margin-top: 2px; }
     .lrm-req { color: var(--gold, #C9A84C); }
     .lrm-input, .lrm-select {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
@@ -37,9 +27,6 @@
         box-shadow: 0 0 0 3px rgba(201,168,76,.1);
     }
     .lrm-textarea::placeholder { color: #c5c5c5; }
-    .lrm-section { display: flex; align-items: center; gap: 10px; margin: 0; }
-    .lrm-section::before, .lrm-section::after { content: ''; flex: 1; height: 1px; background: var(--border, #d0cdc5); }
-    .lrm-section span { font-size: 9px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
     .lrm-hint { font-size: 10.5px; color: var(--muted, #8a8a82); margin-top: 4px; }
     .lrm-template-card {
         border: 1.5px solid var(--border, #d0cdc5); border-radius: 8px; padding: 14px 16px;
@@ -72,7 +59,6 @@
     .lrm-attach-card:hover { background: rgba(201,168,76,.04); }
     .lrm-attach-card.selected { background: rgba(201,168,76,.08); }
     .lrm-attach-card input[type="checkbox"] { accent-color: var(--gold, #C9A84C); width: 14px; height: 14px; cursor: pointer; }
-    .lrm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: flex-end; gap: 10px; }
     .lrm-btn-cancel {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 18px; font-size: 13px; font-weight: 500; color: #5A6B82; cursor: pointer; transition: all .15s;
@@ -88,29 +74,29 @@
     </style>
 
     <!-- Request Modal -->
-    <div x-show="showRequestModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showRequestModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showRequestModal && (showRequestModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showRequestModal = false"></div>
-        <form @submit.prevent="submitRequest()" class="lrm relative z-10" @click.stop>
+        <div class="fixed inset-0" @click="showRequestModal = false"></div>
+        <form @submit.prevent="submitRequest()" class="sp-modal-box relative z-10" @click.stop>
 
             <!-- Header -->
-            <div class="lrm-header">
+            <div class="sp-modal-header">
                 <div>
-                    <h3>Log Record Request</h3>
+                    <h3 class="sp-modal-title">Log Record Request</h3>
                     <div class="lrm-subtitle" x-text="currentProvider?.provider_name"></div>
                 </div>
-                <button type="button" class="lrm-close" @click="showRequestModal = false">
+                <button type="button" class="sp-modal-close" @click="showRequestModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <!-- Body -->
-            <div class="lrm-body">
+            <div class="sp-modal-body">
 
                 <!-- Department Contact -->
                 <template x-if="currentProvider?.contacts?.length > 0">
                     <div>
-                        <label class="lrm-label">Department</label>
+                        <label class="sp-form-label">Department</label>
                         <select x-model="newRequest.contact_id" @change="selectContact(newRequest.contact_id)" class="lrm-select">
                             <option value="">— Manual (use fields below) —</option>
                             <template x-for="c in currentProvider.contacts" :key="c.id">
@@ -121,14 +107,14 @@
                 </template>
 
                 <!-- Date + Method + Follow-up -->
-                <div class="lrm-section"><span>Schedule</span></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                <div class="sp-form-section">Schedule</div>
+                <div class="sp-form-grid-3">
                     <div>
-                        <label class="lrm-label">Request Date <span class="lrm-req">*</span></label>
+                        <label class="sp-form-label">Request Date <span class="lrm-req">*</span></label>
                         <input type="date" x-model="newRequest.request_date" required class="lrm-input lrm-date">
                     </div>
                     <div>
-                        <label class="lrm-label">Method <span class="lrm-req">*</span></label>
+                        <label class="sp-form-label">Method <span class="lrm-req">*</span></label>
                         <select x-model="newRequest.request_method" required @change="newRequest.contact_id = ''; updateSentToByMethod()" class="lrm-select">
                             <option value="email">Email</option>
                             <option value="fax">Fax</option>
@@ -138,18 +124,18 @@
                         </select>
                     </div>
                     <div>
-                        <label class="lrm-label">Follow-up Date</label>
+                        <label class="sp-form-label">Follow-up Date</label>
                         <input type="date" x-model="newRequest.next_followup_date" class="lrm-input lrm-date">
                         <div class="lrm-hint">Defaults to 7 days</div>
                     </div>
                 </div>
 
                 <!-- Type + Sent To -->
-                <div class="lrm-section"><span>Details</span></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"
+                <div class="sp-form-section">Details</div>
+                <div class="sp-form-grid-2"
                     x-effect="$dispatch('auto-select-template', { type: newRequest.request_type })">
                     <div>
-                        <label class="lrm-label">Type</label>
+                        <label class="sp-form-label">Type</label>
                         <select x-model="newRequest.request_type" class="lrm-select">
                             <option value="initial">Initial Request</option>
                             <option value="follow_up">Follow-Up</option>
@@ -158,7 +144,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="lrm-label">Sent To</label>
+                        <label class="sp-form-label">Sent To</label>
                         <input type="text" x-model="newRequest.sent_to" class="lrm-input" placeholder="Email or fax number">
                     </div>
                 </div>
@@ -178,7 +164,7 @@
                     ">
                     <div class="lrm-template-card">
                         <div class="lrm-template-card-header">
-                            <label class="lrm-label" style="margin-bottom:0">Letter Template</label>
+                            <label class="sp-form-label" style="margin-bottom:0">Letter Template</label>
                             <button type="button" @click="previewSelectedTemplate()" :disabled="!selectedTemplateId" class="lrm-preview-btn">Preview</button>
                         </div>
                         <select x-model="selectedTemplateId" @change="selectTemplate($event.target.value)" class="lrm-select">
@@ -191,19 +177,19 @@
                     </div>
 
                     <!-- Template Preview Modal (nested) -->
-                    <div x-show="showPreview" class="fixed inset-0 z-[60] flex items-center justify-center p-4" style="display:none;">
-                        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="closePreview()"></div>
-                        <div class="lrm relative z-10" style="width:700px;" @click.stop>
-                            <div class="lrm-header">
-                                <h3>Template Preview</h3>
-                                <button type="button" class="lrm-close" @click="closePreview()">
+                    <div x-show="showPreview" class="sp-modal-overlay" style="display:none; z-index:60;">
+                        <div class="fixed inset-0" @click="closePreview()"></div>
+                        <div class="sp-modal-box sp-modal-box-lg relative z-10" @click.stop>
+                            <div class="sp-modal-header">
+                                <h3 class="sp-modal-title">Template Preview</h3>
+                                <button type="button" class="sp-modal-close" @click="closePreview()">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
                             <div style="padding:24px; overflow-y:auto; max-height:calc(90vh - 8rem);">
                                 <div class="prose max-w-none" x-html="previewHtml"></div>
                             </div>
-                            <div class="lrm-footer">
+                            <div class="sp-modal-footer">
                                 <button type="button" @click="closePreview()" class="lrm-btn-cancel">Close</button>
                             </div>
                         </div>
@@ -215,7 +201,7 @@
                     <div class="lrm-accordion">
                         <button type="button" class="lrm-accordion-toggle" @click="notesOpen = !notesOpen">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <label class="lrm-label" style="margin-bottom:0; pointer-events:none;">Notes</label>
+                                <label class="sp-form-label" style="margin-bottom:0; pointer-events:none;">Notes</label>
                                 <span x-show="newRequest.notes && newRequest.notes.trim().length > 0" class="lrm-badge">Added</span>
                             </div>
                             <svg class="lrm-accordion-chevron" :class="notesOpen ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +226,7 @@
                     <div class="lrm-accordion">
                         <button type="button" class="lrm-accordion-toggle" @click="attachOpen = !attachOpen">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <label class="lrm-label" style="margin-bottom:0; pointer-events:none;">Attachments</label>
+                                <label class="sp-form-label" style="margin-bottom:0; pointer-events:none;">Attachments</label>
                                 <span x-show="selectedDocumentIds.length > 0" class="lrm-badge" x-text="selectedDocumentIds.length + ' selected'"></span>
                             </div>
                             <svg class="lrm-accordion-chevron" :class="attachOpen ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +273,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="lrm-footer">
+            <div class="sp-modal-footer">
                 <button type="button" @click="showRequestModal = false" class="lrm-btn-cancel">Cancel</button>
                 <button type="submit" :disabled="saving" class="lrm-btn-submit">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>

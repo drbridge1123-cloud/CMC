@@ -1,9 +1,10 @@
 <!-- Settle UIM Modal -->
-<div x-show="showSettleUimModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
-    <div class="fixed inset-0 bg-black/50" @click="showSettleUimModal = false"></div>
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 relative z-10 max-h-[90vh] overflow-y-auto">
-        <div class="p-6">
-            <h3 class="text-lg font-bold mb-1">Settle UIM Case</h3>
+<div x-show="showSettleUimModal" x-cloak class="sp-modal-overlay" @click.self="showSettleUimModal = false">
+    <div class="sp-modal-box" @click.stop>
+        <div class="sp-modal-header">
+            <h3 class="sp-modal-title">Settle UIM Case</h3>
+        </div>
+        <div class="sp-modal-body">
             <p class="text-sm text-v2-text-light mb-3">
                 <span x-text="settlingCase?.case_number" class="font-semibold"></span> -
                 <span x-text="settlingCase?.client_name"></span>
@@ -70,11 +71,10 @@
                     Check Received
                 </label>
             </div>
-
-            <div class="flex justify-end gap-3 mt-6">
-                <button @click="showSettleUimModal = false" class="px-4 py-2 text-sm text-v2-text-mid border rounded-lg hover:bg-v2-bg">Cancel</button>
-                <button @click="settleUim()" class="px-4 py-2 text-sm text-white rounded-lg" style="background:#1a2a44;" onmouseover="this.style.background='#243650'" onmouseout="this.style.background='#1a2a44'">Settle UIM</button>
-            </div>
+        </div>
+        <div class="sp-modal-footer">
+            <button @click="showSettleUimModal = false" class="sp-btn">Cancel</button>
+            <button @click="settleUim()" class="sp-new-btn-navy">Settle UIM</button>
         </div>
     </div>
 </div>

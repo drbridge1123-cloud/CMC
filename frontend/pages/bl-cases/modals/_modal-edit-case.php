@@ -1,15 +1,5 @@
     <style>
-    /* ── Edit Case Modal ── */
-    .ecm { width: 560px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.24); overflow: hidden; background: #fff; }
-    .ecm-header { background: #0F1B2D; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .ecm-header h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
-    .ecm-close { background: none; border: none; color: rgba(255,255,255,.35); cursor: pointer; padding: 4px; transition: color .15s; }
-    .ecm-close:hover { color: rgba(255,255,255,.75); }
-    .ecm-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
-    .ecm-body::-webkit-scrollbar { width: 4px; }
-    .ecm-body::-webkit-scrollbar-track { background: transparent; }
-    .ecm-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-    .ecm-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    /* ── Edit Case Modal (unique styles) ── */
     .ecm-req { color: var(--gold, #C9A84C); }
     .ecm-input, .ecm-select {
         width: 100%; background: #fafafa; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
@@ -37,9 +27,6 @@
         box-shadow: 0 0 0 3px rgba(201,168,76,.1);
     }
     .ecm-textarea::placeholder { color: #c5c5c5; }
-    .ecm-section { display: flex; align-items: center; gap: 10px; margin: 0; }
-    .ecm-section::before, .ecm-section::after { content: ''; flex: 1; height: 1px; background: var(--border, #d0cdc5); }
-    .ecm-section span { font-size: 9px; font-weight: 700; color: var(--muted, #8a8a82); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
     .ecm-check-card {
         display: flex; align-items: center; gap: 9px; cursor: pointer;
         border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px; padding: 10px 13px;
@@ -49,7 +36,6 @@
     .ecm-check-card.checked { border-color: var(--gold, #C9A84C); background: rgba(201,168,76,.06); }
     .ecm-check-card input[type="checkbox"] { accent-color: var(--gold, #C9A84C); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
     .ecm-check-card span { font-size: 12.5px; font-weight: 500; color: var(--text, #1a2535); }
-    .ecm-footer { padding: 14px 24px; border-top: 1px solid var(--border, #d0cdc5); display: flex; justify-content: flex-end; gap: 10px; }
     .ecm-btn-cancel {
         background: #fff; border: 1.5px solid var(--border, #d0cdc5); border-radius: 7px;
         padding: 9px 18px; font-size: 13px; font-weight: 500; color: #5A6B82; cursor: pointer; transition: all .15s;
@@ -65,49 +51,49 @@
     </style>
 
     <!-- Edit Case Modal -->
-    <div x-show="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="showEditModal" class="sp-modal-overlay"
         style="display:none;" @keydown.escape.window="showEditModal && (showEditModal = false)">
-        <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showEditModal = false"></div>
-        <form @submit.prevent="updateCase()" class="ecm relative z-10" @click.stop>
+        <div class="fixed inset-0" @click="showEditModal = false"></div>
+        <form @submit.prevent="updateCase()" class="sp-modal-box relative z-10" @click.stop>
 
             <!-- Header -->
-            <div class="ecm-header">
-                <h3>Edit Case</h3>
-                <button type="button" class="ecm-close" @click="showEditModal = false">
+            <div class="sp-modal-header">
+                <h3 class="sp-modal-title">Edit Case</h3>
+                <button type="button" class="sp-modal-close" @click="showEditModal = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <!-- Body -->
-            <div class="ecm-body">
+            <div class="sp-modal-body">
 
                 <!-- Case Info -->
-                <div class="ecm-section"><span>Case Info</span></div>
-                <div style="display:flex; gap:12px;">
-                    <div style="flex:1;">
-                        <label class="ecm-label">Case Number <span class="ecm-req">*</span></label>
+                <div class="sp-form-section">Case Info</div>
+                <div class="sp-form-grid-2">
+                    <div>
+                        <label class="sp-form-label">Case Number <span class="ecm-req">*</span></label>
                         <input type="text" x-model="editData.case_number" required class="ecm-input ecm-mono">
                     </div>
-                    <div style="flex:1;">
-                        <label class="ecm-label">Client Name <span class="ecm-req">*</span></label>
+                    <div>
+                        <label class="sp-form-label">Client Name <span class="ecm-req">*</span></label>
                         <input type="text" x-model="editData.client_name" required class="ecm-input">
                     </div>
                 </div>
-                <div style="display:flex; gap:12px;">
-                    <div style="flex:1;">
-                        <label class="ecm-label">Date of Birth <span class="ecm-req">*</span></label>
+                <div class="sp-form-grid-2">
+                    <div>
+                        <label class="sp-form-label">Date of Birth <span class="ecm-req">*</span></label>
                         <input type="date" x-model="editData.client_dob" required class="ecm-input ecm-date">
                     </div>
-                    <div style="flex:1;">
-                        <label class="ecm-label">Date of Injury <span class="ecm-req">*</span></label>
+                    <div>
+                        <label class="sp-form-label">Date of Injury <span class="ecm-req">*</span></label>
                         <input type="date" x-model="editData.doi" required class="ecm-input ecm-date">
                     </div>
                 </div>
 
                 <!-- Assignment -->
-                <div class="ecm-section"><span>Assignment</span></div>
+                <div class="sp-form-section">Assignment</div>
                 <div>
-                    <label class="ecm-label">Attorney</label>
+                    <label class="sp-form-label">Attorney</label>
                     <input type="text" x-model="editData.attorney_name" class="ecm-input" placeholder="Select attorney...">
                 </div>
 
@@ -119,7 +105,7 @@
                 </label>
 
                 <!-- Notes -->
-                <div class="ecm-section"><span>Notes</span></div>
+                <div class="sp-form-section">Notes</div>
                 <div>
                     <textarea x-model="editData.notes" class="ecm-textarea" placeholder="Optional notes..."></textarea>
                 </div>
@@ -127,7 +113,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="ecm-footer">
+            <div class="sp-modal-footer">
                 <button type="button" @click="showEditModal = false" class="ecm-btn-cancel">Cancel</button>
                 <button type="submit" :disabled="saving" class="ecm-btn-submit">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>

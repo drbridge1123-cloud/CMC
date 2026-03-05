@@ -49,6 +49,36 @@ $rows = dbFetchAll("
     ORDER BY {$orderCol} {$dir}
 ", [$caseId]);
 
+// Batch fetch contacts for all providers (instead of N+1 queries)
+$providerIds = array_unique(array_column($rows, 'provider_id'));
+$contactsMap = [];
+if ($providerIds) {
+    $ph = implode(',', array_fill(0, count($providerIds), '?'));
+    $allContacts = dbFetchAll(
+        "SELECT id, provider_id, department, contact_type, contact_value, is_primary, notes
+         FROM provider_contacts WHERE provider_id IN ({$ph}) ORDER BY is_primary DESC",
+        array_values($providerIds)
+    );
+    foreach ($allContacts as $c) {
+        $contactsMap[$c['provider_id']][] = $c;
+    }
+}
+
+// Batch fetch receipts for all case providers (instead of N+1 queries)
+$cpIds = array_column($rows, 'id');
+$receiptsMap = [];
+if ($cpIds) {
+    $ph = implode(',', array_fill(0, count($cpIds), '?'));
+    $allReceipts = dbFetchAll(
+        "SELECT case_provider_id, has_medical_records, has_billing, has_chart, has_imaging, has_op_report
+         FROM record_receipts WHERE case_provider_id IN ({$ph})",
+        array_values($cpIds)
+    );
+    foreach ($allReceipts as $r) {
+        $receiptsMap[$r['case_provider_id']][] = $r;
+    }
+}
+
 foreach ($rows as &$row) {
     // Calculate days_since_request
     $row['days_since_request'] = $row['last_request_date'] ? daysElapsed($row['last_request_date']) : null;
@@ -64,21 +94,12 @@ foreach ($rows as &$row) {
     $row['escalation_label'] = $esc['label'];
     $row['escalation_css']   = $esc['css'];
 
-    // Load contacts for this provider
-    $row['contacts'] = dbFetchAll(
-        "SELECT id, department, contact_type, contact_value, is_primary, notes
-         FROM provider_contacts WHERE provider_id = ? ORDER BY is_primary DESC",
-        [$row['provider_id']]
-    );
+    // Use batch-loaded contacts
+    $row['contacts'] = $contactsMap[$row['provider_id']] ?? [];
 
-    // Aggregate received record types from receipts
-    $receipts = dbFetchAll(
-        "SELECT has_medical_records, has_billing, has_chart, has_imaging, has_op_report
-         FROM record_receipts WHERE case_provider_id = ?",
-        [$row['id']]
-    );
+    // Use batch-loaded receipts
     $received = [];
-    foreach ($receipts as $rc) {
+    foreach (($receiptsMap[$row['id']] ?? []) as $rc) {
         if ($rc['has_medical_records']) $received['medical_records'] = true;
         if ($rc['has_billing'])         $received['billing'] = true;
         if ($rc['has_chart'])           $received['chart'] = true;

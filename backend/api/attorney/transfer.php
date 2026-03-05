@@ -37,46 +37,48 @@ $fromStartDate = $lastTransfer
     ? date('Y-m-d', strtotime($lastTransfer['transferred_at']))
     : ($attCase['assigned_date'] ?? date('Y-m-d', strtotime($attCase['submitted_at'])));
 
-// Record transfer history
-dbInsert('attorney_case_transfers', [
-    'attorney_case_id' => $caseId,
-    'from_attorney_id' => $fromAttorneyId,
-    'to_attorney_id' => $toAttorneyId,
-    'note' => $note,
-    'transferred_by' => $userId,
-    'from_start_date' => $fromStartDate,
-]);
-
-// Update attorney assignment
-dbUpdate('attorney_cases', [
-    'attorney_user_id' => $toAttorneyId,
-], 'id = ?', [$caseId]);
-
 $fromName = $fromAttorney['display_name'] ?: $fromAttorney['full_name'];
 $toName = $toAttorney['display_name'] ?: $toAttorney['full_name'];
 
-// Notify both attorneys
-dbInsert('notifications', [
-    'user_id' => $toAttorneyId,
-    'type' => 'assignment',
-    'message' => "Case {$attCase['case_number']} ({$attCase['client_name']}) transferred to you from {$fromName}: {$note}",
-]);
-if ($fromAttorneyId !== $userId) {
-    dbInsert('notifications', [
-        'user_id' => $fromAttorneyId,
-        'type' => 'status_change',
-        'message' => "Case {$attCase['case_number']} ({$attCase['client_name']}) transferred to {$toName}: {$note}",
+dbTransaction(function() use ($caseId, $fromAttorneyId, $toAttorneyId, $note, $userId, $fromStartDate, $attCase, $fromName, $toName) {
+    // Record transfer history
+    dbInsert('attorney_case_transfers', [
+        'attorney_case_id' => $caseId,
+        'from_attorney_id' => $fromAttorneyId,
+        'to_attorney_id' => $toAttorneyId,
+        'note' => $note,
+        'transferred_by' => $userId,
+        'from_start_date' => $fromStartDate,
     ]);
-}
 
-// Activity log
-logActivity($userId, 'transfer', 'attorney_case', $caseId, [
-    'from_attorney_id' => $fromAttorneyId,
-    'from_attorney_name' => $fromName,
-    'to_attorney_id' => $toAttorneyId,
-    'to_attorney_name' => $toName,
-    'note' => $note,
-]);
+    // Update attorney assignment
+    dbUpdate('attorney_cases', [
+        'attorney_user_id' => $toAttorneyId,
+    ], 'id = ?', [$caseId]);
+
+    // Notify both attorneys
+    dbInsert('notifications', [
+        'user_id' => $toAttorneyId,
+        'type' => 'assignment',
+        'message' => "Case {$attCase['case_number']} ({$attCase['client_name']}) transferred to you from {$fromName}: {$note}",
+    ]);
+    if ($fromAttorneyId !== $userId) {
+        dbInsert('notifications', [
+            'user_id' => $fromAttorneyId,
+            'type' => 'status_change',
+            'message' => "Case {$attCase['case_number']} ({$attCase['client_name']}) transferred to {$toName}: {$note}",
+        ]);
+    }
+
+    // Activity log
+    logActivity($userId, 'transfer', 'attorney_case', $caseId, [
+        'from_attorney_id' => $fromAttorneyId,
+        'from_attorney_name' => $fromName,
+        'to_attorney_id' => $toAttorneyId,
+        'to_attorney_name' => $toName,
+        'note' => $note,
+    ]);
+});
 
 successResponse([
     'from' => $fromName,

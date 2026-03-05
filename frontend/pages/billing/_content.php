@@ -27,7 +27,8 @@
     </div>
 
     <!-- ===================== MR TRACKER TAB ===================== -->
-    <div x-show="activeTab === 'mr'" x-data="trackerPage()" x-init="init()">
+    <template x-if="activeTab === 'mr'">
+    <div x-data="trackerPage()">
 
         <!-- Staff Tabs -->
         <?php include __DIR__ . '/../../components/_staff-tabs.php'; ?>
@@ -225,10 +226,12 @@
 
         </div><!-- /sp-card -->
 
-    </div><!-- /MR Tracker Tab -->
+    </div>
+    </template><!-- /MR Tracker Tab -->
 
     <!-- ===================== HEALTH TRACKER TAB ===================== -->
-    <div x-show="activeTab === 'health'" x-cloak x-data="healthLedgerPage()" x-init="init()">
+    <template x-if="activeTab === 'health'">
+    <div x-data="healthLedgerPage()">
 
         <div class="sp-card">
             <div class="sp-gold-bar"></div>
@@ -238,6 +241,7 @@
             <?php include __DIR__ . '/_health-content.php'; ?>
         </div>
 
-    </div><!-- /Health Tracker Tab -->
+    </div>
+    </template><!-- /Health Tracker Tab -->
 
 </div>

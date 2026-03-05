@@ -45,8 +45,9 @@
     <!-- ══════════════════════════════════════════════ -->
     <!-- TAB 1: Accounting Tracker                     -->
     <!-- ══════════════════════════════════════════════ -->
-    <div x-show="acctTab === 'tracker'" x-cloak>
-        <div x-data="accountingTrackerPage()" x-init="init()">
+    <template x-if="acctTab === 'tracker'">
+    <div>
+        <div x-data="accountingTrackerPage()">
 
             <!-- Staff Tabs -->
             <?php include __DIR__ . '/../../components/_staff-tabs.php'; ?>
@@ -324,7 +325,8 @@
             </div>
 
         </div><!-- /accountingTrackerPage -->
-    </div><!-- /tracker tab -->
+    </div>
+    </template><!-- /tracker tab -->
 
     <!-- ══════════════════════════════════════════════ -->
     <!-- TAB 2: Bank Reconciliation                    -->
@@ -614,7 +616,7 @@
     <!-- ══════════════════════════════════════════════ -->
     <template x-if="acctTab === 'expense'">
     <div>
-        <div x-data="expenseReportPage()" x-init="init()">
+        <div x-data="expenseReportPage()">
 
             <!-- ═══ Unified Card ═══ -->
             <div class="sp-card">

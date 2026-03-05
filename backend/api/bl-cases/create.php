@@ -56,22 +56,26 @@ $data = [
     'notes'                    => sanitizeString($input['notes'] ?? ''),
 ];
 
-$id = dbInsert('cases', $data);
+$id = dbTransaction(function() use ($data, $userId, $assignmentStatus, $assignedTo, $caseNumber, $clientName, $status) {
+    $id = dbInsert('cases', $data);
 
-// Create notification for pending assignment
-if ($assignmentStatus === 'pending') {
-    dbInsert('notifications', [
-        'user_id' => $assignedTo,
-        'type'    => 'case_assignment',
-        'message' => "You have been assigned case {$caseNumber} ({$clientName}). Please accept or decline.",
-        'is_read' => 0,
+    // Create notification for pending assignment
+    if ($assignmentStatus === 'pending') {
+        dbInsert('notifications', [
+            'user_id' => $assignedTo,
+            'type'    => 'case_assignment',
+            'message' => "You have been assigned case {$caseNumber} ({$clientName}). Please accept or decline.",
+            'is_read' => 0,
+        ]);
+    }
+
+    logActivity($userId, 'create', 'case', $id, [
+        'case_number' => $caseNumber,
+        'client_name' => $clientName,
+        'status'      => $status,
     ]);
-}
 
-logActivity($userId, 'create', 'case', $id, [
-    'case_number' => $caseNumber,
-    'client_name' => $clientName,
-    'status'      => $status,
-]);
+    return $id;
+});
 
 successResponse(['id' => $id], 'Case created successfully');

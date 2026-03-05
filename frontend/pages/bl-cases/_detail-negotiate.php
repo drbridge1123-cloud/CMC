@@ -1,4 +1,4 @@
-<div class="neg-panel c1-section" data-panel x-data="negotiatePanel(caseId)" x-init="init()">
+<div class="neg-panel c1-section" data-panel x-data="negotiatePanel(caseId)">
     <!-- Header -->
     <div class="neg-header c1-section-header" :class="open && 'is-open'" @click="open = !open; if(open) $nextTick(() => $el.closest('[data-panel]').scrollIntoView({behavior:'smooth',block:'start'}))">
         <div class="neg-header-left">

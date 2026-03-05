@@ -6,7 +6,7 @@ function mbrPage() {
     const base = listPageBase('mbr', {
         defaultSort: 'r.created_at',
         defaultDir: 'desc',
-        perPage: 25,
+        perPage: 50,
         filtersToParams() {
             return { status: this.statusFilter };
         }
@@ -62,22 +62,6 @@ function mbrPage() {
                 approved: 'bg-green-100 text-green-700'
             };
             return map[status] || 'bg-gray-100 text-gray-600';
-        },
-
-        paginationPages() {
-            if (!this.pagination) return [];
-            const total = this.pagination.total_pages;
-            const current = this.pagination.page;
-            const pages = [];
-            const delta = 2;
-            let start = Math.max(2, current - delta);
-            let end = Math.min(total - 1, current + delta);
-            pages.push(1);
-            if (start > 2) pages.push('...');
-            for (let i = start; i <= end; i++) pages.push(i);
-            if (end < total - 1) pages.push('...');
-            if (total > 1) pages.push(total);
-            return pages;
         },
 
         resetFilters() {

@@ -6,7 +6,7 @@ function healthTrackerPage() {
     const base = listPageBase('health-ledger', {
         defaultSort: 'created_at',
         defaultDir: 'desc',
-        perPage: 25,
+        perPage: 50,
         filtersToParams() {
             return {
                 overall_status: this.statusFilter,
@@ -105,24 +105,6 @@ function healthTrackerPage() {
                 done: 'Done'
             };
             return labels[status] || status || 'N/A';
-        },
-
-        // ---- Pagination pages ----
-
-        paginationPages() {
-            if (!this.pagination) return [];
-            const total = this.pagination.total_pages;
-            const current = this.pagination.page;
-            const pages = [];
-            const delta = 2;
-            let start = Math.max(2, current - delta);
-            let end = Math.min(total - 1, current + delta);
-            pages.push(1);
-            if (start > 2) pages.push('...');
-            for (let i = start; i <= end; i++) pages.push(i);
-            if (end < total - 1) pages.push('...');
-            if (total > 1) pages.push(total);
-            return pages;
         },
 
         // ---- Add Item ----

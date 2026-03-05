@@ -6,3 +6,5 @@ storage/cache/
 *.log
 .DS_Store
 Thumbs.db
+node_modules/
+tailwindcss.exe

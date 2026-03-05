@@ -1,22 +1,22 @@
 <!-- INI Staff Assignment Modal -->
-<div x-show="showIniStaffModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+<div x-show="showIniStaffModal" class="sp-modal-overlay"
      style="display:none;" @keydown.escape.window="showIniStaffModal && (showIniStaffModal = false)">
-    <div class="fixed inset-0" style="background:rgba(0,0,0,.45);" @click="showIniStaffModal = false"></div>
-    <div class="ecm relative z-10" style="width:440px;" @click.stop>
+    <div class="fixed inset-0" @click="showIniStaffModal = false"></div>
+    <div class="sp-modal-box sp-modal-box-sm relative z-10" @click.stop>
 
         <!-- Header -->
-        <div class="ecm-header">
-            <h3>Activate Provider for Requesting</h3>
-            <button type="button" class="ecm-close" @click="showIniStaffModal = false">
+        <div class="sp-modal-header">
+            <h3 class="sp-modal-title">Activate Provider for Requesting</h3>
+            <button type="button" class="sp-modal-close" @click="showIniStaffModal = false">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
         <!-- Body -->
-        <div class="ecm-body">
+        <div class="sp-modal-body">
             <!-- Providers list -->
             <div style="background:#f8f7f4; border-radius:7px; padding:10px 13px;">
-                <p style="font-size:9.5px; font-weight:700; color:#8a8a82; text-transform:uppercase; letter-spacing:.08em; margin:0 0 6px;">
+                <p class="sp-form-label" style="margin:0 0 6px;">
                     Providers to activate
                 </p>
                 <template x-for="p in providers.filter(p => iniProviderIds.length > 0 ? iniProviderIds.includes(p.id) : ['treating','treatment_complete'].includes(p.overall_status))" :key="p.id">
@@ -29,7 +29,7 @@
 
             <!-- Record Types -->
             <div>
-                <label class="ecm-label">Record Types to Request</label>
+                <label class="sp-form-label">Record Types to Request</label>
                 <div style="display:flex; flex-wrap:wrap; gap:6px;">
                     <label class="ecm-check-card" style="flex:0 0 auto; padding:7px 12px;" :class="{ checked: iniRecordTypes.request_mr }">
                         <input type="checkbox" x-model="iniRecordTypes.request_mr"> <span>MR</span>
@@ -48,7 +48,7 @@
 
             <!-- Staff selection -->
             <div>
-                <label class="ecm-label">Assign To <span class="ecm-req">*</span></label>
+                <label class="sp-form-label">Assign To <span class="ecm-req">*</span></label>
                 <select x-model="iniSelectedStaff" class="ecm-select">
                     <option value="">Select staff member...</option>
                     <template x-for="s in staffList" :key="s.id">
@@ -59,7 +59,7 @@
 
             <!-- Notes -->
             <div>
-                <label class="ecm-label">Notes</label>
+                <label class="sp-form-label">Notes</label>
                 <textarea x-model="iniNotes" class="ecm-input" rows="2" style="resize:none;" placeholder="Optional notes..."></textarea>
             </div>
 
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="ecm-footer">
+        <div class="sp-modal-footer">
             <button type="button" @click="showIniStaffModal = false" class="ecm-btn-cancel">Cancel</button>
             <button type="button" @click="confirmIniActivation()" :disabled="iniActivating || !iniSelectedStaff" class="ecm-btn-submit">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>

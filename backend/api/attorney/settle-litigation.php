@@ -77,8 +77,6 @@ if ($isPolicyLimit) {
     $data['status'] = 'unpaid';
 }
 
-dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
-
 $logData = ['settled' => $settled, 'commission' => $commission, 'is_policy_limit' => $isPolicyLimit];
 $resData = ['commission' => $commission, 'is_policy_limit' => $isPolicyLimit];
 if ($hasCommission) {
@@ -86,5 +84,9 @@ if ($hasCommission) {
     $resData['result'] = $calc;
 }
 
-logActivity($userId, 'settle_litigation', 'attorney_case', $caseId, $logData);
+dbTransaction(function() use ($data, $caseId, $userId, $logData) {
+    dbUpdate('attorney_cases', $data, 'id = ?', [$caseId]);
+    logActivity($userId, 'settle_litigation', 'attorney_case', $caseId, $logData);
+});
+
 successResponse($resData, 'Litigation settled');

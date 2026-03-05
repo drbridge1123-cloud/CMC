@@ -55,12 +55,16 @@ $data = [
     'presuit_offer'   => $presuitOffer,
 ];
 
-$id = dbInsert('attorney_cases', $data);
+$id = dbTransaction(function() use ($data, $userId, $caseNumber, $clientName, $phase) {
+    $id = dbInsert('attorney_cases', $data);
 
-logActivity($userId, 'create', 'attorney_case', $id, [
-    'case_number' => $caseNumber,
-    'client_name' => $clientName,
-    'phase'       => $phase,
-]);
+    logActivity($userId, 'create', 'attorney_case', $id, [
+        'case_number' => $caseNumber,
+        'client_name' => $clientName,
+        'phase'       => $phase,
+    ]);
+
+    return $id;
+});
 
 successResponse(['id' => $id], 'Attorney case created successfully');

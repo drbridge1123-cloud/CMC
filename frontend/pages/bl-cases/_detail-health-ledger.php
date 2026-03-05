@@ -1,6 +1,6 @@
 <!-- Health Insurance Ledger Panel -->
 <div class="c1-section" data-panel
-     x-data="healthLedgerPanel(caseId, caseData?.case_number)" x-init="init()">
+     x-data="healthLedgerPanel(caseId, caseData?.case_number)">
 
     <!-- Header -->
     <div class="c1-section-header" :class="open && 'is-open'"
